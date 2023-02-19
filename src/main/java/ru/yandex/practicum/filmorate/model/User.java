@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@AllArgsConstructor
 @Builder
 public class User {
     @EqualsAndHashCode.Include
@@ -26,4 +28,5 @@ public class User {
     private String name;
     @Past(message = "День рожденье пользователя не может быть больше текущей даты")
     private LocalDate birthday;
+    private Set<Integer> friends;
 }
