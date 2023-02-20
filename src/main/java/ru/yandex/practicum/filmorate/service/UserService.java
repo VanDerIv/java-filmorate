@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.error.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import javax.validation.ValidationException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,31 @@ public class UserService {
     @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
+    }
+
+    public List<User> getUsers() {
+        return userStorage.getUsers();
+    }
+
+    public User getUser(Integer id) {
+        User user = userStorage.getUser(id);
+        if (user == null) throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
+        return user;
+    }
+
+    public User createUser(User user) {
+        if (user.getId() != 0) {
+            throw new ValidationException("Поле id НЕ должно быть задано для нового пользователя");
+        }
+        return userStorage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        if (user.getId() == 0) {
+            throw new ValidationException("Поле id должно быть задано");
+        }
+        getUser(user.getId());
+        return userStorage.updateUser(user);
     }
 
     public void addUserToFriend(User user, User friend) {
