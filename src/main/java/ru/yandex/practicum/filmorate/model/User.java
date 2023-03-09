@@ -29,4 +29,10 @@ public class User {
     @Past(message = "День рожденье пользователя не может быть больше текущей даты")
     private LocalDate birthday;
     private Set<Integer> friends;
+
+    public void compute() {
+        if (this.getName() == null || this.getName().isBlank()) {
+            this.setName(this.getLogin());
+        }
+    }
 }

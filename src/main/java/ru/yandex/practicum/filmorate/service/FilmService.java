@@ -55,12 +55,14 @@ public class FilmService {
             film.setLikes(likes);
         }
         likes.add(user.getId());
+        filmStorage.setLike(film, user);
     }
 
     public void removeLike(Film film, User user) {
         Set<Integer> likes = film.getLikes();
         if (likes == null) return;
         likes.remove(user.getId());
+        filmStorage.removeLike(film, user);
     }
 
     public List<Film> getPopularFilms(Integer count) {

@@ -15,11 +15,13 @@ public class InMemoryUserStorage implements UserStorage {
         return users.keySet().stream().mapToInt(id -> id).max().orElse(0) + 1;
     }
 
+    @Override
     public List<User> getUsers() {
         log.info("Возращено пользователей " + users.size());
         return new ArrayList<>(users.values());
     }
 
+    @Override
     public User getUser(Integer id) {
         if (!users.containsKey(id)) {
             log.error(String.format("Пользователь с id=%d не найден", id));
@@ -29,21 +31,23 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(id);
     }
 
+    @Override
     public User createUser(User user) {
         user.setId(genID());
         return updateUser(user);
     }
 
+    @Override
     public User updateUser(User user) {
-        compute(user);
+        user.compute();
         users.put(user.getId(), user);
         log.info("Пользователь добавлен/изменен " + user);
         return user;
     }
 
-    private void compute(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-    }
+    @Override
+    public void addUserToFriend(User user, User friend) {}
+
+    @Override
+    public void removeUserFromFriend(User user, User friend) {}
 }

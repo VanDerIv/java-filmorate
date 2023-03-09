@@ -47,6 +47,7 @@ public class UserService {
     }
 
     public void addUserToFriend(User user, User friend) {
+        if (user.equals(friend)) throw new ValidationException("Пользователь не может быть другом самому себе");
         Set<Integer> userFriends = user.getFriends();
         Set<Integer> crossFriends = friend.getFriends();
         if (userFriends == null) {
@@ -60,6 +61,7 @@ public class UserService {
 
         userFriends.add(friend.getId());
         crossFriends.add(user.getId());
+        userStorage.addUserToFriend(user, friend);
     }
 
     public void removeUserFromFriend(User user, User friend) {
@@ -69,6 +71,7 @@ public class UserService {
 
         userFriends.remove(friend.getId());
         crossFriends.remove(user.getId());
+        userStorage.removeUserFromFriend(user, friend);
     }
 
     public Set<User> getUserFriends(User user) {
