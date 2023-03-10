@@ -17,7 +17,7 @@ import java.util.Set;
 @Builder
 public class User {
     @EqualsAndHashCode.Include
-    private int id;
+    private long id;
     @NotNull(message = "Email пользователя должен быть задан")
     @NotBlank(message = "Email пользователя должен быть задан")
     @Email(message = "Email должен соответствовать формату почты")
@@ -28,5 +28,11 @@ public class User {
     private String name;
     @Past(message = "День рожденье пользователя не может быть больше текущей даты")
     private LocalDate birthday;
-    private Set<Integer> friends;
+    private Set<Long> friends;
+
+    public void compute() {
+        if (this.getName() == null || this.getName().isBlank()) {
+            this.setName(this.getLogin());
+        }
+    }
 }
