@@ -30,10 +30,10 @@ public class GenreDbStorage implements GenreStorage{
     }
 
     @Override
-    public Genre getGenre(Integer id) {
+    public Genre getGenre(Long id) {
         List<Genre> genres = jdbcTemplate.query("SELECT * FROM genres WHERE id = ?", (rs, rowNum) -> makeGenre(rs), id);
 
-        if (genres.size() == 0) {
+        if (genres.isEmpty()) {
             log.error("Жанр с id={} не найден", id);
             return null;
         }
@@ -41,7 +41,7 @@ public class GenreDbStorage implements GenreStorage{
         return genres.get(0);
     }
 
-    public Set<Genre> getFilmGenres(Integer filmId) {
+    public Set<Genre> getFilmGenres(Long filmId) {
         if (filmId == null) return null;
         List<Genre> genres = jdbcTemplate.query("SELECT g.* FROM genres g" +
                 " JOIN film_genres fg" +

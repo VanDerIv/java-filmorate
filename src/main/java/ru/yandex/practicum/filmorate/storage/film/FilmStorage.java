@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FilmStorage {
     List<Film> getFilmes();
-    Film getFilm(Integer id);
+    Film getFilm(Long id);
     Film createFilm(Film film);
     Film updateFilm(Film film);
     void setLike(Film film, User user);

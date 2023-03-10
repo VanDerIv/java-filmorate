@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class Mpa {
     @EqualsAndHashCode.Include
-    private int id;
+    private long id;
     @NotNull(message = "Код рейтинга должен быть задан")
     private String name;
     private String description;

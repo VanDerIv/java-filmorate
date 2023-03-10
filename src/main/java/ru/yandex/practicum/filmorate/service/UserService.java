@@ -25,9 +25,11 @@ public class UserService {
         return userStorage.getUsers();
     }
 
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         User user = userStorage.getUser(id);
-        if (user == null) throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
+        if (user == null) {
+            throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
+        }
         return user;
     }
 
@@ -48,8 +50,8 @@ public class UserService {
 
     public void addUserToFriend(User user, User friend) {
         if (user.equals(friend)) throw new ValidationException("Пользователь не может быть другом самому себе");
-        Set<Integer> userFriends = user.getFriends();
-        Set<Integer> crossFriends = friend.getFriends();
+        Set<Long> userFriends = user.getFriends();
+        Set<Long> crossFriends = friend.getFriends();
         if (userFriends == null) {
             userFriends = new HashSet<>();
             user.setFriends(userFriends);
@@ -65,8 +67,8 @@ public class UserService {
     }
 
     public void removeUserFromFriend(User user, User friend) {
-        Set<Integer> userFriends = user.getFriends();
-        Set<Integer> crossFriends = friend.getFriends();
+        Set<Long> userFriends = user.getFriends();
+        Set<Long> crossFriends = friend.getFriends();
         if (userFriends == null || crossFriends == null) return;
 
         userFriends.remove(friend.getId());
@@ -75,15 +77,15 @@ public class UserService {
     }
 
     public Set<User> getUserFriends(User user) {
-        Set<Integer> friends = user.getFriends();
+        Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
         
         return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
     }
 
     public Set<User> getUserCommonFriends(User user, User otherUser) {
-        Set<Integer> friends = user.getFriends();
-        Set<Integer> crossFriends = otherUser.getFriends();
+        Set<Long> friends = user.getFriends();
+        Set<Long> crossFriends = otherUser.getFriends();
         if (friends == null || crossFriends == null) return new HashSet<>();
         
         return friends.stream()

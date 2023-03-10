@@ -21,9 +21,11 @@ public class MpaService {
         return mpaStorage.getMpa();
     }
 
-    public Mpa getRating(Integer id) {
+    public Mpa getRating(Long id) {
         Mpa rating = mpaStorage.getMpa(id);
-        if (rating == null) throw new NotFoundException(String.format("Рейтинг %d не найден", id));
+        if (rating == null) {
+            throw new NotFoundException(String.format("Рейтинг %d не найден", id));
+        }
         return rating;
     }
 }

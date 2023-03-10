@@ -41,10 +41,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Integer id) {
+    public Film getFilm(Long id) {
         List<Film> films = jdbcTemplate.query("SELECT * FROM films WHERE id = ?", (rs, rowNum) -> makeFilm(rs), id);
 
-        if (films.size() == 0) {
+        if (films.isEmpty()) {
             log.error("Фильм с id={} не найден", id);
             return null;
         }
@@ -67,12 +67,12 @@ public class FilmDbStorage implements FilmStorage {
             if (film.getMpa() == null) {
                 ps.setNull(5, Types.INTEGER);
             } else {
-                ps.setInt(5, film.getMpa().getId());
+                ps.setLong(5, film.getMpa().getId());
             }
             return ps;
         }, keyHolder);
 
-        Integer id = keyHolder.getKey().intValue();
+        Long id = keyHolder.getKey().longValue();
 
         updateGenres(film.getGenres(), id);
 
@@ -106,7 +106,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId(), user.getId());
     }
 
-    private void updateGenres(Set<Genre> genres, int filmId) {
+    private void updateGenres(Set<Genre> genres, Long filmId) {
         if (filmId == 0) return;
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
         if (genres == null) return;
@@ -117,18 +117,18 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private Set<Integer> getLikes(Integer id) {
+    private Set<Long> getLikes(Long id) {
         SqlRowSet likeSet = jdbcTemplate.queryForRowSet("SELECT user_id FROM film_likes WHERE film_id = ?", id);
-        Set<Integer> likes = new HashSet<>();
+        Set<Long> likes = new HashSet<>();
         while(likeSet.next()) {
-            likes.add(likeSet.getInt("user_id"));
+            likes.add(likeSet.getLong("user_id"));
         }
         return likes;
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = Film.builder()
-                .id(rs.getInt("id"))
+                .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .duration(rs.getInt("duration"))
@@ -138,9 +138,9 @@ public class FilmDbStorage implements FilmStorage {
             film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         }
 
-        film.setLikes(getLikes(rs.getInt("id")));
-        film.setGenres(genreDbStorage.getFilmGenres(rs.getInt("id")));
-        film.setMpa(mpaDbStorage.getMpa(rs.getInt("mpa")));
+        film.setLikes(getLikes(rs.getLong("id")));
+        film.setGenres(genreDbStorage.getFilmGenres(rs.getLong("id")));
+        film.setMpa(mpaDbStorage.getMpa(rs.getLong("mpa")));
         return film;
     }
 }

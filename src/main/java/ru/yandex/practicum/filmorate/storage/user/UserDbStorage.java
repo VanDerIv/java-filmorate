@@ -36,10 +36,10 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", (rs, rowNum) -> makeUser(rs), id);
 
-        if (users.size() == 0) {
+        if (users.isEmpty()) {
             log.error("Пользователь с id={} не найден", id);
             return null;
         }
@@ -64,7 +64,7 @@ public class UserDbStorage implements UserStorage {
             return ps;
         }, keyHolder);
 
-        Integer id = keyHolder.getKey().intValue();
+        Long id = keyHolder.getKey().longValue();
         log.info("Успешно добавлен пользователь {}", id);
         return getUser(id);
     }
@@ -95,11 +95,11 @@ public class UserDbStorage implements UserStorage {
                 friend.getId(), user.getId());
     }
 
-    private Set<Integer> getFriends(int id) {
+    private Set<Long> getFriends(Long id) {
         SqlRowSet friendSet = jdbcTemplate.queryForRowSet("SELECT friend_id FROM user_friends WHERE user_id = ?", id);
-        Set<Integer> friends = new HashSet<>();
+        Set<Long> friends = new HashSet<>();
         while (friendSet.next()) {
-            friends.add(friendSet.getInt("friend_id"));
+            friends.add(friendSet.getLong("friend_id"));
         }
         return friends;
     }

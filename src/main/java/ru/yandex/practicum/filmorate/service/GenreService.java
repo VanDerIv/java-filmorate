@@ -21,7 +21,7 @@ public class GenreService {
         return genreStorage.getGenres();
     }
 
-    public Genre getGenre(Integer id) {
+    public Genre getGenre(Long id) {
         Genre genre = genreStorage.getGenre(id);
         if (genre == null) throw new NotFoundException(String.format("Жанр %d не найден", id));
         return genre;

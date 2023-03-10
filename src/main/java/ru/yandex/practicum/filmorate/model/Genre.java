@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class Genre {
     @EqualsAndHashCode.Include
-    private int id;
+    private long id;
     @NotNull(message = "Имя жанра должно быть задано")
     private String name;
 }

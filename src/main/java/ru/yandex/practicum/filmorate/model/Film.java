@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 public class Film {
     @EqualsAndHashCode.Include
-    private int id;
+    private long id;
     @NotNull(message = "Имя фильма должно быть задано")
     @NotBlank(message = "Имя фильма должно быть задано")
     private String name;
@@ -25,7 +25,7 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    private Set<Integer> likes;
+    private Set<Long> likes;
     private Mpa mpa;
     private Set<Genre> genres;
 }

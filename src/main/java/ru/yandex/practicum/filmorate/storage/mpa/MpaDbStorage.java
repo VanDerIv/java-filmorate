@@ -28,10 +28,10 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpa(Integer id) {
+    public Mpa getMpa(Long id) {
         List<Mpa> ratings = jdbcTemplate.query("SELECT * FROM mpa WHERE id = ?", (rs, rowNum) -> makeMpa(rs), id);
 
-        if (ratings.size() == 0) {
+        if (ratings.isEmpty()) {
             log.error("Рейтинг с id={} не найден", id);
             return null;
         }
@@ -41,7 +41,7 @@ public class MpaDbStorage implements MpaStorage {
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
         return Mpa.builder()
-                .id(rs.getInt("id"))
+                .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .build();

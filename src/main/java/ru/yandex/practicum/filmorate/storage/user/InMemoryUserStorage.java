@@ -9,10 +9,10 @@ import java.util.*;
 @Component
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
-    private final Map<Integer, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
 
-    private int genID() {
-        return users.keySet().stream().mapToInt(id -> id).max().orElse(0) + 1;
+    private Long genID() {
+        return users.keySet().stream().mapToLong(id -> id).max().orElse(0) + 1;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         if (!users.containsKey(id)) {
             log.error(String.format("Пользователь с id=%d не найден", id));
             return null;

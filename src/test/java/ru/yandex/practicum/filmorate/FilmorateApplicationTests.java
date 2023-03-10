@@ -32,37 +32,37 @@ class FilmorateApplicationTests {
 		List<User> users = userStorage.getUsers();
 		assertEquals(0, users.size());
 
-		User user = userStorage.getUser(1);
+		User user = userStorage.getUser(1L);
 		assertNull(user);
 
 		User user1 = User.builder().id(1).name("Петя").login("Peta").email("peta@yandex.ru")
-				.birthday(LocalDate.of(2003, 02, 1)).build();
+				.birthday(LocalDate.of(2003, 2, 1)).build();
 		userStorage.createUser(user1);
-		user = userStorage.getUser(1);
+		user = userStorage.getUser(1L);
 		assertNotNull(user);
-		assertThat(user).hasFieldOrPropertyWithValue("id", 1);
+		assertThat(user).hasFieldOrPropertyWithValue("id", 1L);
 
 		User user2 = User.builder().id(2).name("Саша").login("Roma").email("roma@yandex.ru")
-				.birthday(LocalDate.of(2008, 04, 8)).build();
+				.birthday(LocalDate.of(2008, 4, 8)).build();
 		userStorage.createUser(user2);
 		users = userStorage.getUsers();
 		assertEquals(2, users.size());
 
 		user2.setName("Рома");
 		userStorage.updateUser(user2);
-		user = userStorage.getUser(2);
+		user = userStorage.getUser(2L);
 		assertNotNull(user);
 		assertThat(user).hasFieldOrPropertyWithValue("name", "Рома");
 
 		userStorage.addUserToFriend(user1, user2);
-		user = userStorage.getUser(1);
-		Set<Integer> friends = user.getFriends();
+		user = userStorage.getUser(1L);
+		Set<Long> friends = user.getFriends();
 		assertNotNull(friends);
 		assertEquals(1, friends.size());
 		assertEquals(2, friends.stream().findFirst().get());
 
 		userStorage.removeUserFromFriend(user1, user2);
-		user = userStorage.getUser(1);
+		user = userStorage.getUser(1L);
 		friends = user.getFriends();
 		assertNotNull(friends);
 		assertEquals(0, friends.size());
@@ -73,18 +73,18 @@ class FilmorateApplicationTests {
 		List<Film> films = filmStorage.getFilmes();
 		assertEquals(0, films.size());
 
-		Film film = filmStorage.getFilm(1);
+		Film film = filmStorage.getFilm(1L);
 		assertNull(film);
 
 		Film film1 = Film.builder().id(1).name("Титаник").description("Красивый фильм о любви")
 				.releaseDate(LocalDate.of(1997, 11, 1)).duration(194).build();
 		filmStorage.createFilm(film1);
-		film = filmStorage.getFilm(1);
+		film = filmStorage.getFilm(1L);
 		assertNotNull(film);
-		assertThat(film).hasFieldOrPropertyWithValue("id", 1);
+		assertThat(film).hasFieldOrPropertyWithValue("id", 1L);
 
 		Film film2 = Film.builder().id(2).name("Гладиатор").description("Много драк и крови")
-				.releaseDate(LocalDate.of(2001, 02, 10)).duration(130).build();
+				.releaseDate(LocalDate.of(2001, 2, 10)).duration(130).build();
 		filmStorage.createFilm(film2);
 		films = filmStorage.getFilmes();
 		assertEquals(2, films.size());
@@ -92,22 +92,22 @@ class FilmorateApplicationTests {
 		Mpa mpa = Mpa.builder().id(4).name("R").build();
 		film2.setMpa(mpa);
 		filmStorage.updateFilm(film2);
-		film = filmStorage.getFilm(2);
+		film = filmStorage.getFilm(2L);
 		assertNotNull(film);
 		assertThat(film).hasFieldOrPropertyWithValue("mpa", mpa);
 
 		User user1 = User.builder().id(1).name("Петя").login("Peta").email("peta@yandex.ru")
-				.birthday(LocalDate.of(2003, 02, 1)).build();
+				.birthday(LocalDate.of(2003, 2, 1)).build();
 		userStorage.createUser(user1);
 		filmStorage.setLike(film1, user1);
-		film = filmStorage.getFilm(1);
-		Set<Integer> likes = film.getLikes();
+		film = filmStorage.getFilm(1L);
+		Set<Long> likes = film.getLikes();
 		assertNotNull(likes);
 		assertEquals(1, likes.size());
 		assertEquals(1, likes.stream().findFirst().get());
 
 		filmStorage.removeLike(film1, user1);
-		film = filmStorage.getFilm(1);
+		film = filmStorage.getFilm(1L);
 		likes = film.getLikes();
 		assertNotNull(likes);
 		assertEquals(0, likes.size());

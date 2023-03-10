@@ -10,10 +10,10 @@ import java.util.*;
 @Component
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> filmes = new HashMap<>();
+    private final Map<Long, Film> filmes = new HashMap<>();
 
-    private int genID() {
-        return filmes.keySet().stream().mapToInt(id -> id).max().orElse(0) + 1;
+    private Long genID() {
+        return filmes.keySet().stream().mapToLong(id -> id).max().orElse(0) + 1;
     }
 
     @Override
@@ -23,7 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Integer id) {
+    public Film getFilm(Long id) {
         if (!filmes.containsKey(id)) {
             log.warn(String.format("Фильм с id=%d не найден", id));
             return null;

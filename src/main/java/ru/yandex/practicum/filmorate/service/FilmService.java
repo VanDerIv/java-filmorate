@@ -42,14 +42,14 @@ public class FilmService {
         return filmStorage.updateFilm(film);
     }
 
-    public Film getFilm(Integer id) {
+    public Film getFilm(Long id) {
         Film film = filmStorage.getFilm(id);
         if (film == null) throw new NotFoundException(String.format("Фильм %d не найден", id));
         return film;
     }
 
     public void setLike(Film film, User user) {
-        Set<Integer> likes = film.getLikes();
+        Set<Long> likes = film.getLikes();
         if (likes == null) {
             likes = new HashSet<>();
             film.setLikes(likes);
@@ -59,7 +59,7 @@ public class FilmService {
     }
 
     public void removeLike(Film film, User user) {
-        Set<Integer> likes = film.getLikes();
+        Set<Long> likes = film.getLikes();
         if (likes == null) return;
         likes.remove(user.getId());
         filmStorage.removeLike(film, user);
@@ -70,8 +70,8 @@ public class FilmService {
 
         return filmStorage.getFilmes().stream()
                 .sorted((film1, film2) -> {
-                    Set<Integer> likes1 = film1.getLikes();
-                    Set<Integer> likes2 = film2.getLikes();
+                    Set<Long> likes1 = film1.getLikes();
+                    Set<Long> likes2 = film2.getLikes();
                     return - (likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
                 })
                 .limit(count)
