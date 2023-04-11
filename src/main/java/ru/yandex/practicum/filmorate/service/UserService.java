@@ -63,7 +63,7 @@ public class UserService {
         if (userFriends == null) {
             userFriends = new HashSet<>();
             user.setFriends(userFriends);
-        } 
+        }
         if (crossFriends == null) {
             crossFriends = new HashSet<>();
             friend.setFriends(crossFriends);
@@ -87,7 +87,6 @@ public class UserService {
     public Set<User> getUserFriends(User user) {
         Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
-        
         return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
     }
 
