@@ -27,10 +27,10 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreDbStorage genreDbStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage){
-        this.jdbcTemplate=jdbcTemplate;
-        this.mpaDbStorage=mpaDbStorage;
-        this.genreDbStorage=genreDbStorage;
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
     }
 
     @Override
@@ -127,7 +127,7 @@ public class FilmDbStorage implements FilmStorage {
     private Set<Long> getLikes(Long id) {
         SqlRowSet likeSet = jdbcTemplate.queryForRowSet("SELECT user_id FROM film_likes WHERE film_id = ?", id);
         Set<Long> likes = new HashSet<>();
-        while(likeSet.next()) {
+        while (likeSet.next()) {
             likes.add(likeSet.getLong("user_id"));
         }
         return likes;
