@@ -8,10 +8,16 @@ import java.util.List;
 
 public interface ReviewStorage {
     Review getReview(Long id);
+
     Review createReview(Review review);
+
     Review updateReview(Review review);
+
     void deleteReview(Long id);
+
     List<Review> getReviews(Film film, Integer count);
+
     void setScore(Review review, User user, Integer score);
+
     void removeScore(Review review, User user);
 }

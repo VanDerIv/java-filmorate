@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final String SQL = "SELECT r.*, NVL(rs.score, 0) score " +
+    private final String sql = "SELECT r.*, NVL(rs.score, 0) score " +
             "FROM reviews r " +
             "LEFT JOIN (SELECT review_id, SUM(score) score " +
             "           FROM review_scores " +
@@ -24,13 +24,13 @@ public class ReviewDbStorage implements ReviewStorage {
             "  ON rs.review_id = r.id ";
 
     @Autowired
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Review getReview(Long id) {
-        List<Review> reviews = jdbcTemplate.query(SQL + "WHERE id = ?", (rs, rowNum) -> makeReviews(rs), id);
+        List<Review> reviews = jdbcTemplate.query(sql + "WHERE id = ?", (rs, rowNum) -> makeReviews(rs), id);
 
         if (reviews.isEmpty()) {
             log.error("Ревью с id={} не найдено", id);
@@ -83,9 +83,9 @@ public class ReviewDbStorage implements ReviewStorage {
     public List<Review> getReviews(Film film, Integer count) {
         List<Review> reviews;
         if (film == null) {
-            reviews = jdbcTemplate.query(SQL + "ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), count);
+            reviews = jdbcTemplate.query(sql + "ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), count);
         } else {
-            reviews = jdbcTemplate.query(SQL + "WHERE film_id = ? ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), film.getId(), count);
+            reviews = jdbcTemplate.query(sql + "WHERE film_id = ? ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), film.getId(), count);
         }
         log.info("Возращено ревью {}", reviews.size());
         return reviews;

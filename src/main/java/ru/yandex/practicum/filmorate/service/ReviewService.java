@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public class ReviewService {
-    private final Integer REVIEW_COUNT = 10;
+    private final Integer rowCount = 10;
     private final ReviewStorage reviewStorage;
 
     @Autowired
@@ -50,7 +50,7 @@ public class ReviewService {
     }
 
     public List<Review> getReviews(Film film, Integer count) {
-        count = count == null ? REVIEW_COUNT : count;
+        count = count == null ? rowCount : count;
         return reviewStorage.getReviews(film, count);
     }
 
