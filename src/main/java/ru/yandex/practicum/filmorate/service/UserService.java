@@ -94,7 +94,6 @@ public class UserService {
         Set<Long> friends = user.getFriends();
         Set<Long> crossFriends = otherUser.getFriends();
         if (friends == null || crossFriends == null) return new HashSet<>();
-        
         return friends.stream()
                 .filter(crossFriends::contains)
                 .map(userStorage::getUser)
