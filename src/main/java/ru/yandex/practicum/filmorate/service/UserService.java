@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ValidationException;
@@ -15,10 +16,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     public List<User> getUsers() {
@@ -55,7 +57,7 @@ public class UserService {
         if (userFriends == null) {
             userFriends = new HashSet<>();
             user.setFriends(userFriends);
-        } 
+        }
         if (crossFriends == null) {
             crossFriends = new HashSet<>();
             friend.setFriends(crossFriends);
@@ -79,7 +81,7 @@ public class UserService {
     public Set<User> getUserFriends(User user) {
         Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
-        
+
         return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
     }
 
@@ -87,10 +89,14 @@ public class UserService {
         Set<Long> friends = user.getFriends();
         Set<Long> crossFriends = otherUser.getFriends();
         if (friends == null || crossFriends == null) return new HashSet<>();
-        
+
         return friends.stream()
                 .filter(crossFriends::contains)
                 .map(userStorage::getUser)
                 .collect(Collectors.toSet());
+    }
+
+    public List<Film> getFilmsRecommendationsForUser(User user) {
+        return null;
     }
 }
