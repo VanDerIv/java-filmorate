@@ -16,8 +16,8 @@ public class FilmRecommendationService {
     private final FilmService filmService;
     private final UserService userService;
 
-    public void setLike(int id_film, int id_user) {
-        filmService.setLike(filmService.getFilm((long) id_film), userService.getUser((long) id_user));
+    public void setLike(int filmId, int userId) {
+        filmService.setLike(filmService.getFilm((long) filmId), userService.getUser((long) userId));
     }
 
     public List<Film> getFilmsRecommendationsByUserId(long userId) {
