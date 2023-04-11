@@ -84,6 +84,13 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public void deleteUser(Long id) {
+        final String query = "DELETE FROM users WHERE id = ?";
+        jdbcTemplate.update(query, id);
+        log.info("Пользователь с id {} успешно удален", id);
+    }
+
+    @Override
     public void addUserToFriend(User user, User friend) {
         jdbcTemplate.update("INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)",
                 user.getId(), friend.getId());

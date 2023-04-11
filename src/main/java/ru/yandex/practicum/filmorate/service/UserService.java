@@ -48,6 +48,14 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
+    public void deleteUser(Long id) {
+        User user = userStorage.getUser(id);
+        if (user == null) {
+            throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
+        }
+        userStorage.deleteUser(id);
+    }
+
     public void addUserToFriend(User user, User friend) {
         if (user.equals(friend)) throw new ValidationException("Пользователь не может быть другом самому себе");
         Set<Long> userFriends = user.getFriends();

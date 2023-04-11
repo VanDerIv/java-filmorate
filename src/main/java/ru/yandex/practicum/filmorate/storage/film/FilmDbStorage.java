@@ -95,6 +95,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilm(Long id) {
+        final String query = "DELETE FROM films WHERE id = ?";
+        jdbcTemplate.update(query, id);
+        log.info("Фильм с id {} успешно удален", id);
+    }
+
+    @Override
     public void setLike(Film film, User user) {
         jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
                 film.getId(), user.getId());

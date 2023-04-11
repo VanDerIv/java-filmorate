@@ -48,6 +48,12 @@ public class FilmService {
         return film;
     }
 
+    public void deleteFilm(Long id) {
+        Film film = filmStorage.getFilm(id);
+        if (film == null) throw new NotFoundException(String.format("Фильм %d не найден", id));
+        filmStorage.deleteFilm(id);
+    }
+
     public void setLike(Film film, User user) {
         Set<Long> likes = film.getLikes();
         if (likes == null) {
