@@ -73,6 +73,6 @@ public class UserController {
     @GetMapping("/{id}/recommendations")
     public List<Film> getFilmsRecommendationsForUser(@PathVariable final Long id) {
         User user = userService.getUser(id);
-        return filmRecommendationService.getFilmsRecommendationsForUser(user);
+        return filmRecommendationService.getFilmsRecommendationsForUser(id);
     }
 }
