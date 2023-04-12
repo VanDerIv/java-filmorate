@@ -49,10 +49,7 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        User user = userStorage.getUser(id);
-        if (user == null) {
-            throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
-        }
+        getUser(id);
         userStorage.deleteUser(id);
     }
 

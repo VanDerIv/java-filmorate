@@ -49,8 +49,7 @@ public class FilmService {
     }
 
     public void deleteFilm(Long id) {
-        Film film = filmStorage.getFilm(id);
-        if (film == null) throw new NotFoundException(String.format("Фильм %d не найден", id));
+        getFilm(id);
         filmStorage.deleteFilm(id);
     }
 
