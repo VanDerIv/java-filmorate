@@ -8,10 +8,12 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.ValidationException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FilmService {
@@ -68,13 +70,47 @@ public class FilmService {
     public List<Film> getPopularFilms(Integer count) {
         if (count == null) count = DEF_COUNT;
 
-        return filmStorage.getFilmes().stream()
-                .sorted((film1, film2) -> {
-                    Set<Long> likes1 = film1.getLikes();
-                    Set<Long> likes2 = film2.getLikes();
-                    return - (likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
-                })
+        Stream<Film> streamFilm = filmStorage.getFilmes().stream();
+        return sortStreamFilm(streamFilm)
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private Stream<Film> sortStreamFilm(Stream<Film> streamFilm) {
+        return streamFilm.sorted((film1, film2) -> {
+            Set<Long> likes1 = film1.getLikes();
+            Set<Long> likes2 = film2.getLikes();
+            return - (likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
+        });
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Stream<Film> streamFilm = filmStorage.getFilmes().stream()
+                .filter(film -> filmIsMatched(film, by, query));
+
+        return sortStreamFilm(streamFilm)
+                .collect(Collectors.toList());
+    }
+
+    private boolean filmIsMatched(Film film, String by, String query) {
+        String[] bis = by.split(",");
+        for (String bi: bis) {
+            switch (bi) {
+                case ("director"):
+                    //TODO доработать после реализации "Добавление режиссёров в фильмы"
+                    break;
+                case ("title"):
+                    if (film.getName().toLowerCase()
+                            .matches(".*" + query.toLowerCase() + ".*")) {
+                        return true;
+                    }
+                    break;
+            }
+        }
+        return false;
     }
 }

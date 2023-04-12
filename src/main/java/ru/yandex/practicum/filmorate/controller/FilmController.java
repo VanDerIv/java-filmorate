@@ -60,4 +60,9 @@ public class FilmController {
     public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count) {
         return filmService.getPopularFilms(count);
     }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam final String query, @RequestParam final String by) {
+        return filmService.searchFilms(query, by);
+    }
 }
