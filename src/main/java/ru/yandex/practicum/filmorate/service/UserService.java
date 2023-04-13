@@ -95,8 +95,4 @@ public class UserService {
                 .map(userStorage::getUser)
                 .collect(Collectors.toSet());
     }
-
-    public List<Film> getFilmsRecommendationsForUser(User user) {
-        return null;
-    }
 }
