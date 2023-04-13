@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/films")
+@Slf4j
 public class FilmController {
     private final FilmService filmService;
     private final UserService userService;
@@ -61,10 +63,11 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+
     @GetMapping("/common?userId={userId}&friendId={friendId}")
-    public List<Film> getCommonFilms(@PathVariable final Long userId, @PathVariable final Long friendId) {
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
         User friend = userService.getUser(friendId);
         User user = userService.getUser(userId);
-        return filmService.getCommonFilms(user,friend);
+        return filmService.getCommonFilms(user, friend);
     }
 }

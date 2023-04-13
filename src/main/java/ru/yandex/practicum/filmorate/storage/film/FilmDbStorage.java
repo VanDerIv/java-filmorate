@@ -107,10 +107,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(User user, User friend) {
-        List<Map<String, Object>> filmList = jdbcTemplate.queryForList("SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes group by film_id) p ON u.film_id = p.film_id WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc", friend.getId(), user.getId());
+        List<Long> filmList = jdbcTemplate.query("SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes group by film_id) p ON u.film_id = p.film_id WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc", (rs, rowNum) -> rs.getLong("film_id"), friend.getId(), user.getId());
         List<Film> films = new ArrayList<>();
-        for (Map<String, Object> map : filmList) {
-            films.add(getFilm((Long) map.get("film_id")));
+        for (Long el:filmList) {
+            films.add(getFilm((el)));
         }
         return films;
     }
