@@ -60,4 +60,11 @@ public class FilmController {
     public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count) {
         return filmService.getPopularFilms(count);
     }
+
+    @GetMapping("/common?userId={userId}&friendId={friendId}")
+    public List<Film> getCommonFilms(@PathVariable final Long userId, @PathVariable final Long friendId) {
+        User friend = userService.getUser(friendId);
+        User user = userService.getUser(userId);
+        return filmService.getCommonFilms(user,friend);
+    }
 }

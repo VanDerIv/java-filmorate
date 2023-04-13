@@ -50,4 +50,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void removeLike(Film film, User user) {}
+
+    @Override
+    public List<Film> getCommonFilms(User user, User friend) {
+        return new ArrayList<>();
+    }
 }

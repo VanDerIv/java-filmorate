@@ -77,4 +77,8 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    public List<Film> getCommonFilms(User user, User friend) {
+        return filmStorage.getCommonFilms(user, friend);
+    }
 }

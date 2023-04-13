@@ -14,9 +14,8 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.sql.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.sql.Date;
+import java.util.*;
 
 @Component
 @Primary
@@ -104,6 +103,16 @@ public class FilmDbStorage implements FilmStorage {
     public void removeLike(Film film, User user) {
         jdbcTemplate.update("DELETE FROM film_likes WHERE film_id = ? AND user_id = ?",
                 film.getId(), user.getId());
+    }
+
+    @Override
+    public List<Film> getCommonFilms(User user, User friend) {
+        List<Map<String, Object>> filmList = jdbcTemplate.queryForList("SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes group by film_id) p ON u.film_id = p.film_id WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc", friend.getId(), user.getId());
+        List<Film> films = new ArrayList<>();
+        for (Map<String, Object> map : filmList) {
+            films.add(getFilm((Long) map.get("film_id")));
+        }
+        return films;
     }
 
     private void updateGenres(Set<Genre> genres, Long filmId) {
