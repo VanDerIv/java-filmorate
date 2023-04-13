@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Component
 @Slf4j
-public class GenreDbStorage implements GenreStorage{
+public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
