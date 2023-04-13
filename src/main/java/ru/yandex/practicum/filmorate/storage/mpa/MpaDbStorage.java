@@ -17,7 +17,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Autowired
     public MpaDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

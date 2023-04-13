@@ -25,7 +25,7 @@ public class UserDbStorage implements UserStorage {
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate=jdbcTemplate;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

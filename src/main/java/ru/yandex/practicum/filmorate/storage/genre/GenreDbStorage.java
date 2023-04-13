@@ -19,7 +19,7 @@ public class GenreDbStorage implements GenreStorage{
 
     @Autowired
     public GenreDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
