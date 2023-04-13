@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SpringBootTest
@@ -25,48 +23,52 @@ class FilmRecommendationServiceTest {
 
     @BeforeEach
     public void initial() {
-        User user;
+        Map<Long, Film> films = new HashMap<>();
+        Map<Long, User> users = new HashMap<>();
+
         for (int i = 1; i < 7; i++) {
-            user = User.builder()
+            User user = User.builder()
                     .email("e" + i + "@yandex.ru")
                     .login("login " + i)
                     .name("name " + i)
                     .birthday(LocalDate.of(1990 + 3 * i, 2 + i, 25 - 2 * i))
                     .build();
-            recommendationService.getUserService().createUser(user);
+            user = recommendationService.getUserService().createUser(user);
+            users.put(user.getId(), user);
         }
-        Film film;
+
         for (int i = 1; i < 8; i++) {
-            film = Film.builder()
+            Film film = Film.builder()
                     .name("Фильм " + i)
                     .description("Фильм об " + i)
                     .releaseDate(LocalDate.of(1980 + 3 * i, 3 + i, 13 + 2 * i))
                     .duration(20 * i)
                     .build();
-            recommendationService.getFilmService().createFilm(film);
+            film = recommendationService.getFilmService().createFilm(film);
+            films.put(film.getId(), film);
         }
 
-        recommendationService.setLike(1, 2);
-        recommendationService.setLike(1, 3);
-        recommendationService.setLike(1, 4);
-        recommendationService.setLike(2, 4);
-        recommendationService.setLike(2, 3);
-        recommendationService.setLike(2, 6);
-        recommendationService.setLike(3, 4);
-        recommendationService.setLike(3, 2);
-        recommendationService.setLike(3, 1);
-        recommendationService.setLike(4, 1);
-        recommendationService.setLike(4, 2);
-        recommendationService.setLike(4, 3);
-        recommendationService.setLike(4, 5);
-        recommendationService.setLike(4, 6);
-        recommendationService.setLike(5, 3);
-        recommendationService.setLike(5, 2);
-        recommendationService.setLike(6, 2);
-        recommendationService.setLike(6, 3);
-        recommendationService.setLike(7, 1);
-        recommendationService.setLike(7, 2);
-        recommendationService.setLike(7, 3);
+        recommendationService.getFilmService().setLike(films.get(1L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(1L), users.get(3L));
+        recommendationService.getFilmService().setLike(films.get(1L), users.get(4L));
+        recommendationService.getFilmService().setLike(films.get(2L), users.get(4L));
+        recommendationService.getFilmService().setLike(films.get(2L), users.get(3L));
+        recommendationService.getFilmService().setLike(films.get(2L), users.get(6L));
+        recommendationService.getFilmService().setLike(films.get(3L), users.get(4L));
+        recommendationService.getFilmService().setLike(films.get(3L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(3L), users.get(1L));
+        recommendationService.getFilmService().setLike(films.get(4L), users.get(1L));
+        recommendationService.getFilmService().setLike(films.get(4L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(4L), users.get(3L));
+        recommendationService.getFilmService().setLike(films.get(4L), users.get(5L));
+        recommendationService.getFilmService().setLike(films.get(4L), users.get(6L));
+        recommendationService.getFilmService().setLike(films.get(5L), users.get(3L));
+        recommendationService.getFilmService().setLike(films.get(5L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(6L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(6L), users.get(3L));
+        recommendationService.getFilmService().setLike(films.get(7L), users.get(1L));
+        recommendationService.getFilmService().setLike(films.get(7L), users.get(2L));
+        recommendationService.getFilmService().setLike(films.get(7L), users.get(3L));
     }
 
     @Test

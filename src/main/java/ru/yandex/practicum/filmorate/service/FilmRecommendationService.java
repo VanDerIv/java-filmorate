@@ -16,10 +16,6 @@ public class FilmRecommendationService {
     private final FilmService filmService;
     private final UserService userService;
 
-    public void setLike(int filmId, int userId) {
-        filmService.setLike(filmService.getFilm((long) filmId), userService.getUser((long) userId));
-    }
-
     public List<Film> getFilmsRecommendationsByUserId(long userId) {
         Map<Long, Integer> closeUsers = getCloseUsersByLikes(userId);
         int maxTheSameFilms = getMaxTheSameLikesFilms(closeUsers);
