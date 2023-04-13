@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +10,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class FilmRecommendationServiceTest {
 
     @Autowired
-    private  FilmRecommendationService recommendationService;
+    private FilmRecommendationService recommendationService;
 
 
     @BeforeEach
@@ -32,7 +36,7 @@ class FilmRecommendationServiceTest {
             recommendationService.getUserService().createUser(user);
         }
         Film film;
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < 8; i++) {
             film = Film.builder()
                     .name("Фильм " + i)
                     .description("Фильм об " + i)
@@ -42,17 +46,39 @@ class FilmRecommendationServiceTest {
             recommendationService.getFilmService().createFilm(film);
         }
 
-        recommendationService.setLike(2,6);
-        recommendationService.setLike(3,5);
-        recommendationService.setLike(5,1);
-        recommendationService.setLike(3,1);
-        recommendationService.setLike(1,2);
-
+        recommendationService.setLike(1, 2);
+        recommendationService.setLike(1, 3);
+        recommendationService.setLike(1, 4);
+        recommendationService.setLike(2, 4);
+        recommendationService.setLike(2, 3);
+        recommendationService.setLike(2, 6);
+        recommendationService.setLike(3, 4);
+        recommendationService.setLike(3, 2);
+        recommendationService.setLike(3, 1);
+        recommendationService.setLike(4, 1);
+        recommendationService.setLike(4, 2);
+        recommendationService.setLike(4, 3);
+        recommendationService.setLike(4, 5);
+        recommendationService.setLike(4, 6);
+        recommendationService.setLike(5, 3);
+        recommendationService.setLike(5, 2);
+        recommendationService.setLike(6, 2);
+        recommendationService.setLike(6, 3);
+        recommendationService.setLike(7, 1);
+        recommendationService.setLike(7, 2);
+        recommendationService.setLike(7, 3);
     }
 
     @Test
-    public void checkGetFilmsRecommendationsForUser() {
-        List<Film> films = recommendationService.getFilmsRecommendationsForUser(1L);
-        //assertEquals(5, filmService.getAllFilms().size(), "Недопустимое количество фильмов");
+    public void shouldReturnFourFilms() {
+        List<Film> films = recommendationService.getFilmsRecommendationsByUserId(4L);
+        Set<Long> actualRecommendationFilms = films.stream().map(f -> f.getId()).collect(Collectors.toSet());
+        Set<Long> expectedRecommendationFilms = new HashSet<>();
+        expectedRecommendationFilms.add(4L);
+        expectedRecommendationFilms.add(5L);
+        expectedRecommendationFilms.add(6L);
+        expectedRecommendationFilms.add(7L);
+        Assertions.assertEquals(4, films.size(), "Недопустимое количество рекомендованных фильмов");
+        Assertions.assertEquals(expectedRecommendationFilms, actualRecommendationFilms, "Недопустимое состав рекомендованных фильмов");
     }
 }
