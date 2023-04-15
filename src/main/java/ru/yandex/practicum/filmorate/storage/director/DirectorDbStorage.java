@@ -18,12 +18,10 @@ import ru.yandex.practicum.filmorate.model.Director;
 public class DirectorDbStorage implements DirectorStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final DirectorStorage directorStorage;
 
     @Autowired
-    public DirectorDbStorage(JdbcTemplate jdbcTemplate, DirectorStorage directorStorage) {
+    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -82,8 +80,8 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Set<Director> getAllFilmsDirectors(Long id) {
         if (id == null) return null;
-        List<Director> directors = jdbcTemplate.query("SELECT d.* FROM directors d"
-            + "JOIN film_directors fd ON fd.director_id = d.id"
+        List<Director> directors = jdbcTemplate.query("SELECT d.* FROM directors d "
+            + "JOIN film_directors fd ON fd.director_id = d.id "
             + "WHERE fd.film_id = ?", (rs, rowNum) -> makeDirector(rs), id);
         return new HashSet<>(directors);
     }
