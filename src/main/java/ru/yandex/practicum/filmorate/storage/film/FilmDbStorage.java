@@ -164,6 +164,7 @@ public class FilmDbStorage implements FilmStorage {
             jdbcTemplate.update("INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)",
                 filmId, director.getId());
         }
+        log.info("Режисёры фильма с id={} успешно изменены", filmId);
     }
 
     private Set<Long> getLikes(Long id) {

@@ -78,9 +78,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        if (count == null) {
-            count = DEF_COUNT;
-        }
+        if (count == null) count = DEF_COUNT;
 
         return filmStorage.getFilmes().stream()
             .sorted(FilmService::compare)
@@ -93,11 +91,11 @@ public class FilmService {
 
         if (sortBy.equals("likes")) {
             films = filmStorage.getAllDirectorsFilms(id).stream()
-                .sorted(Comparator.comparing(Film::getReleaseDate))
+                .sorted(FilmService::compare)
                 .collect(Collectors.toList());
         } else {
             films = filmStorage.getAllDirectorsFilms(id).stream()
-                .sorted(FilmService::compare)
+                .sorted(Comparator.comparing(Film::getReleaseDate))
                 .collect(Collectors.toList());
         }
 
