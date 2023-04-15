@@ -89,14 +89,21 @@ public class FilmService {
     }
 
     public List<Film> getAllDirectorsFilmsSortedBy(long id, String sortBy) {
+        List<Film> films;
+
         if (sortBy.equals("likes")) {
-            return filmStorage.getAllDirectorsFilms(id).stream()
+            films = filmStorage.getAllDirectorsFilms(id).stream()
                 .sorted(Comparator.comparing(Film::getReleaseDate))
                 .collect(Collectors.toList());
         } else {
-            return filmStorage.getAllDirectorsFilms(id).stream()
+            films = filmStorage.getAllDirectorsFilms(id).stream()
                 .sorted(FilmService::compare)
                 .collect(Collectors.toList());
         }
+
+        if (films.isEmpty()) {
+            throw new NotFoundException(String.format("Фильмы режисёра %d не найдены", id));
+        }
+        return films;
     }
 }

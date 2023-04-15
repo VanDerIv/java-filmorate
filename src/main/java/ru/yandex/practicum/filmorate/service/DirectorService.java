@@ -32,7 +32,7 @@ public class DirectorService {
 
     public Director createDirector(Director director) {
         if (director.getId() != 0) {
-            throw new ValidationException("Поле id НЕ должно быть задано для нового фальма");
+            director.setId(0);
         }
         return directorStorage.createDirector(director);
     }

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
@@ -85,6 +87,7 @@ public class FilmDbStorage implements FilmStorage {
         Long id = keyHolder.getKey().longValue();
 
         updateGenres(film.getGenres(), id);
+        updateDirectors(film.getDirectors(), id);
 
         log.info("Успешно добавлен фильм {}", id);
         return getFilm(id);
@@ -100,6 +103,7 @@ public class FilmDbStorage implements FilmStorage {
             film.getId());
 
         updateGenres(film.getGenres(), film.getId());
+        updateDirectors(film.getDirectors(), film.getId());
 
         log.info("Успешно изменен фильм {}", film.getId());
         return getFilm(film.getId());
@@ -119,9 +123,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllDirectorsFilms(long id) {
-        List<Film> films = jdbcTemplate.query("SELECT f.* FROM FIlMS f "
-            + "JOIN film_directors fd ON fd.film_id = f.id"
+        List<Film> films = jdbcTemplate.query("SELECT f.* FROM films f "
+            + "JOIN film_directors fd ON fd.film_id = f.id "
             + "WHERE fd.director_id = ?", (rs, rowNum) -> makeFilm(rs), id);
+
+        if (films.isEmpty()) {
+            log.error("Фильмы режисёра с id={} не найдены", id);
+            return new ArrayList<>();
+        }
+        log.info("Фильмы режисёра с id={} успешно возвращены", id);
         return films;
     }
 
@@ -137,6 +147,22 @@ public class FilmDbStorage implements FilmStorage {
         for (Genre genre : genres) {
             jdbcTemplate.update("INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)",
                 filmId, genre.getId());
+        }
+    }
+
+    private void updateDirectors(Set<Director> directors, Long filmId) {
+        if (filmId == 0) {
+            return;
+        }
+
+        jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?", filmId);
+        if (directors == null) {
+            return;
+        }
+
+        for (Director director : directors) {
+            jdbcTemplate.update("INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)",
+                filmId, director.getId());
         }
     }
 
@@ -165,7 +191,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setLikes(getLikes(rs.getLong("id")));
         film.setGenres(genreDbStorage.getFilmGenres(rs.getLong("id")));
         film.setMpa(mpaDbStorage.getMpa(rs.getLong("mpa")));
-        film.setDirector(directorStorage.getAllFilmsDirectors(rs.getLong("id")));
+        film.setDirectors(directorStorage.getAllFilmsDirectors(rs.getLong("id")));
         return film;
     }
 
