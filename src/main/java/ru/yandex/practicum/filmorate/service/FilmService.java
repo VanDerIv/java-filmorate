@@ -16,12 +16,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
+
     private final static Integer DEF_COUNT = 10;
     private final FilmStorage filmStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
+    }
+
+    private static int compare(Film film1, Film film2) {
+        Set<Long> likes1 = film1.getLikes();
+        Set<Long> likes2 = film2.getLikes();
+        return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
     }
 
     public List<Film> getFilmes() {
@@ -45,7 +52,9 @@ public class FilmService {
 
     public Film getFilm(Long id) {
         Film film = filmStorage.getFilm(id);
-        if (film == null) throw new NotFoundException(String.format("Фильм %d не найден", id));
+        if (film == null) {
+            throw new NotFoundException(String.format("Фильм %d не найден", id));
+        }
         return film;
     }
 
@@ -61,22 +70,26 @@ public class FilmService {
 
     public void removeLike(Film film, User user) {
         Set<Long> likes = film.getLikes();
-        if (likes == null) return;
+        if (likes == null) {
+            return;
+        }
         likes.remove(user.getId());
         filmStorage.removeLike(film, user);
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        if (count == null) count = DEF_COUNT;
+        if (count == null) {
+            count = DEF_COUNT;
+        }
 
         return filmStorage.getFilmes().stream()
-                .sorted(FilmService::compare)
-                .limit(count)
-                .collect(Collectors.toList());
+            .sorted(FilmService::compare)
+            .limit(count)
+            .collect(Collectors.toList());
     }
 
     public List<Film> getAllDirectorsFilmsSortedBy(long id, String sortBy) {
-        if(sortBy.equals("likes")){
+        if (sortBy.equals("likes")) {
             return filmStorage.getAllDirectorsFilms(id).stream()
                 .sorted(Comparator.comparing(Film::getReleaseDate))
                 .collect(Collectors.toList());
@@ -86,11 +99,4 @@ public class FilmService {
                 .collect(Collectors.toList());
         }
     }
-
-    private static int compare(Film film1, Film film2) {
-        Set<Long> likes1 = film1.getLikes();
-        Set<Long> likes2 = film2.getLikes();
-        return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
-    }
-
 }
