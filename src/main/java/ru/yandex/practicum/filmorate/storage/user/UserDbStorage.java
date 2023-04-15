@@ -24,8 +24,8 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -81,6 +81,13 @@ public class UserDbStorage implements UserStorage {
 
         log.info("Успешно изменен пользователь {}", user.getId());
         return getUser(user.getId());
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        final String query = "DELETE FROM users WHERE id = ?";
+        jdbcTemplate.update(query, id);
+        log.info("Пользователь с id {} успешно удален", id);
     }
 
     @Override
