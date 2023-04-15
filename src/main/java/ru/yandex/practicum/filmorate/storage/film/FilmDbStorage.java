@@ -27,10 +27,10 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreDbStorage genreDbStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage){
-        this.jdbcTemplate=jdbcTemplate;
-        this.mpaDbStorage=mpaDbStorage;
-        this.genreDbStorage=genreDbStorage;
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
     }
 
     @Override
@@ -95,6 +95,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilm(Long id) {
+        final String query = "DELETE FROM films WHERE id = ?";
+        jdbcTemplate.update(query, id);
+        log.info("Фильм с id {} успешно удален", id);
+    }
+
+    @Override
     public void setLike(Film film, User user) {
         jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
                 film.getId(), user.getId());
@@ -120,7 +127,7 @@ public class FilmDbStorage implements FilmStorage {
     private Set<Long> getLikes(Long id) {
         SqlRowSet likeSet = jdbcTemplate.queryForRowSet("SELECT user_id FROM film_likes WHERE film_id = ?", id);
         Set<Long> likes = new HashSet<>();
-        while(likeSet.next()) {
+        while (likeSet.next()) {
             likes.add(likeSet.getLong("user_id"));
         }
         return likes;

@@ -46,6 +46,11 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
+    public void deleteUser(Long id) {
+        getUser(id);
+        userStorage.deleteUser(id);
+    }
+
     public void addUserToFriend(User user, User friend) {
         if (user.equals(friend)) throw new ValidationException("Пользователь не может быть другом самому себе");
         Set<Long> userFriends = user.getFriends();
@@ -77,7 +82,6 @@ public class UserService {
     public Set<User> getUserFriends(User user) {
         Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
-
         return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
     }
 
@@ -85,7 +89,6 @@ public class UserService {
         Set<Long> friends = user.getFriends();
         Set<Long> crossFriends = otherUser.getFriends();
         if (friends == null || crossFriends == null) return new HashSet<>();
-
         return friends.stream()
                 .filter(crossFriends::contains)
                 .map(userStorage::getUser)

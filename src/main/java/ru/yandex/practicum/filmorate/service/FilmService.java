@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private final static Integer DEF_COUNT = 10;
+    private static final Integer DEF_COUNT = 10;
     private final FilmStorage filmStorage;
 
     @Autowired
@@ -46,6 +46,11 @@ public class FilmService {
         Film film = filmStorage.getFilm(id);
         if (film == null) throw new NotFoundException(String.format("Фильм %d не найден", id));
         return film;
+    }
+
+    public void deleteFilm(Long id) {
+        getFilm(id);
+        filmStorage.deleteFilm(id);
     }
 
     public void setLike(Film film, User user) {
