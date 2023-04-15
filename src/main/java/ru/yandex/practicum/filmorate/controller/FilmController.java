@@ -64,10 +64,10 @@ public class FilmController {
     }
 
 
-    @GetMapping("/common?userId={userId}&friendId={friendId}")
-    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
-        User friend = userService.getUser(friendId);
-        User user = userService.getUser(userId);
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam("userId") Long uId, @RequestParam("friendId") Long fId) {
+        User friend = userService.getUser(fId);
+        User user = userService.getUser(uId);
         return filmService.getCommonFilms(user, friend);
     }
 }
