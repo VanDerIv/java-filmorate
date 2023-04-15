@@ -10,6 +10,7 @@ import java.util.*;
 @Component
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
+
     private final Map<Long, Film> filmes = new HashMap<>();
 
     private Long genID() {
@@ -46,10 +47,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void setLike(Film film, User user) {}
+    public void setLike(Film film, User user) {
+    }
 
     @Override
-    public void removeLike(Film film, User user) {}
+    public void removeLike(Film film, User user) {
+    }
 
     @Override
     public List<Film> getAllDirectorsFilms(long id) {
