@@ -62,12 +62,13 @@ public class ReviewDbStorage implements ReviewStorage {
         Long id = keyHolder.getKey().longValue();
 
         log.info("Ревью успешно добавлено {}", id);
-        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 2);
+        userDbStorage.createFeedEvent(id, review.getUserId(),2, 2);
         return getReview(id);
     }
 
     @Override
     public Review updateReview(Review review) {
+        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 3);
         jdbcTemplate.update("UPDATE reviews " +
                         "SET film_id = ?, user_id = ?, content = ?, is_positive = ? " +
                         "WHERE id = ?",
@@ -75,7 +76,6 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getReviewId());
 
         log.info("Ревью успешно изменено {}", review.getReviewId());
-        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 3);
         return getReview(review.getReviewId());
     }
 

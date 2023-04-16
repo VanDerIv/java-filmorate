@@ -93,14 +93,14 @@ public class UserDbStorage implements UserStorage {
     public void addUserToFriend(User user, User friend) {
         jdbcTemplate.update("INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)",
                 user.getId(), friend.getId());
-        createFeedEvent(user.getId(), user.getId(), 3, 2);
+        createFeedEvent(friend.getId(), user.getId(), 3, 2);
     }
 
     @Override
     public void removeUserFromFriend(User user, User friend) {
+        createFeedEvent(friend.getId(), user.getId(), 3, 1);
         jdbcTemplate.update("DELETE FROM user_friends WHERE friend_id = ? AND user_id = ?",
                 friend.getId(), user.getId());
-        createFeedEvent(user.getId(), user.getId(), 3, 1);
     }
 
     @Override
