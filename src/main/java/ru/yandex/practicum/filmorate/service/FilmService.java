@@ -127,7 +127,13 @@ public class FilmService {
         for (String bi: bis) {
             switch (bi) {
                 case ("director"):
-                    //TODO доработать после реализации "Добавление режиссёров в фильмы"
+                    if (film.getDirectors().stream()
+                            .anyMatch(director -> director.getName()
+                                    .toLowerCase()
+                                    .matches(".*" + query.toLowerCase() + ".*"))
+                    ) {
+                        return true;
+                    }
                     break;
                 case ("title"):
                     if (film.getName().toLowerCase()
