@@ -15,6 +15,10 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
+    void deleteFilm(Long id);
+
+    List<Film> getAllDirectorsFilms(long id);
+
     void setLike(Film film, User user);
 
     void removeLike(Film film, User user);

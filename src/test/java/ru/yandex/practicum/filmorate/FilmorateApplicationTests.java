@@ -67,6 +67,9 @@ class FilmorateApplicationTests {
 		friends = user.getFriends();
 		assertNotNull(friends);
 		assertEquals(0, friends.size());
+
+		userStorage.deleteUser(1L);
+		assertEquals(1, userStorage.getUsers().size());
 	}
 
 	@Test
@@ -125,6 +128,9 @@ class FilmorateApplicationTests {
 		likes = film.getLikes();
 		assertNotNull(likes);
 		assertEquals(0, likes.size());
+
+		filmStorage.deleteFilm(1L);
+		assertEquals(1, filmStorage.getFilmes().size());
 	}
 
 }
