@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class FeedEvent {
-    private LocalDateTime timestamp;
+    private Long timestamp;
     @NotNull(message = "Введите идентификатор пользователя")
     private long userId;
     @NotNull(message = "Введите тип события")

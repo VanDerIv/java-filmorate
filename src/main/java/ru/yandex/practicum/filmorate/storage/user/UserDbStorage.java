@@ -136,7 +136,7 @@ public class UserDbStorage implements UserStorage {
 
     private FeedEvent makeFeedEvent(ResultSet rs) throws SQLException {
         FeedEvent event = FeedEvent.builder()
-                .timestamp(rs.getTimestamp("event_timestamp").toLocalDateTime())
+                .timestamp(rs.getLong("event_timestamp"))
                 .userId(rs.getInt("user_id"))
                 .eventType(rs.getString("event_type_name"))
                 .operation(rs.getString("operation_name"))
@@ -148,7 +148,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public void createFeedEvent(Long entityId, Long userId, int eventType, int operation) {
-        LocalDateTime today = LocalDateTime.now();
+        Long today = System.currentTimeMillis();
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -158,7 +158,7 @@ public class UserDbStorage implements UserStorage {
             ps.setLong(2, userId);
             ps.setInt(3, eventType);
             ps.setInt(4, operation);
-            ps.setTimestamp(5, Timestamp.valueOf(today));
+            ps.setLong(5, today);
             return ps;
         }, keyHolder);
         Long id = keyHolder.getKey().longValue();
