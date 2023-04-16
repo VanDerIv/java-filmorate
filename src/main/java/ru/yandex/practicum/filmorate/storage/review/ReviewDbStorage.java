@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.Operation;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.sql.*;
@@ -62,13 +64,13 @@ public class ReviewDbStorage implements ReviewStorage {
         Long id = keyHolder.getKey().longValue();
 
         log.info("Ревью успешно добавлено {}", id);
-        userDbStorage.createFeedEvent(id, review.getUserId(),2, 2);
+        userDbStorage.createFeedEvent(id, review.getUserId(), EventType.REVIEW.getEventCode(), Operation.ADD.getOpCode());
         return getReview(id);
     }
 
     @Override
     public Review updateReview(Review review) {
-        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 3);
+        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(), EventType.REVIEW.getEventCode(), Operation.UPDATE.getOpCode());
         jdbcTemplate.update("UPDATE reviews " +
                         "SET film_id = ?, user_id = ?, content = ?, is_positive = ? " +
                         "WHERE id = ?",
@@ -81,7 +83,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReview(Long id) {
-        userDbStorage.createFeedEvent(getReview(id).getReviewId(), getReview(id).getUserId(),2, 1);
+        userDbStorage.createFeedEvent(getReview(id).getReviewId(), getReview(id).getUserId(), EventType.REVIEW.getEventCode(), Operation.REMOVE.getOpCode());
         jdbcTemplate.update("DELETE FROM reviews WHERE id = ?", id);
         log.info("Ревью успешно удалено {}", id);
     }

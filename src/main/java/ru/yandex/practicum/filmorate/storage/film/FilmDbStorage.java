@@ -20,6 +20,8 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.Operation;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
@@ -123,14 +125,14 @@ public class FilmDbStorage implements FilmStorage {
     public void setLike(Film film, User user) {
         jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
             film.getId(), user.getId());
-        userDbStorage.createFeedEvent(film.getId(), user.getId(),1, 2);
+        userDbStorage.createFeedEvent(film.getId(), user.getId(), EventType.LIKE.getEventCode(), Operation.ADD.getOpCode());
     }
 
     @Override
     public void removeLike(Film film, User user) {
         jdbcTemplate.update("DELETE FROM film_likes WHERE film_id = ? AND user_id = ?",
             film.getId(), user.getId());
-        userDbStorage.createFeedEvent(film.getId(), user.getId(),1, 1);
+        userDbStorage.createFeedEvent(film.getId(), user.getId(),EventType.LIKE.getEventCode(), Operation.REMOVE.getOpCode());
     }
 
     @Override

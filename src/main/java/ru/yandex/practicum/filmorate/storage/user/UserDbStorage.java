@@ -9,6 +9,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.Operation;
 
 import java.sql.*;
 import java.util.HashSet;
@@ -92,12 +94,12 @@ public class UserDbStorage implements UserStorage {
     public void addUserToFriend(User user, User friend) {
         jdbcTemplate.update("INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)",
                 user.getId(), friend.getId());
-        createFeedEvent(friend.getId(), user.getId(), 3, 2);
+        createFeedEvent(friend.getId(), user.getId(), EventType.FRIEND.getEventCode(), Operation.ADD.getOpCode());
     }
 
     @Override
     public void removeUserFromFriend(User user, User friend) {
-        createFeedEvent(friend.getId(), user.getId(), 3, 1);
+        createFeedEvent(friend.getId(), user.getId(), EventType.FRIEND.getEventCode(), Operation.REMOVE.getOpCode());
         jdbcTemplate.update("DELETE FROM user_friends WHERE friend_id = ? AND user_id = ?",
                 friend.getId(), user.getId());
     }
