@@ -97,6 +97,9 @@ public class UserService {
     }
 
     public List<FeedEvent> getUserFeed(Long id) {
+        if (getUser(id) == null) {
+            throw new ValidationException("Пользователя с таким id не существует");
+        }
         return userStorage.getUserFeed(id);
     }
 }
