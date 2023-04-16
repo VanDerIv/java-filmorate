@@ -76,7 +76,7 @@ public class UserController {
         User user = userService.getUser(id);
         return filmRecommendationService.getFilmsRecommendationsByUserId(id);
     }
-    
+
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable final Long userId) {
         userService.deleteUser(userId);
