@@ -58,6 +58,11 @@ public class FilmService {
         return film;
     }
 
+    public void deleteFilm(Long id) {
+        getFilm(id);
+        filmStorage.deleteFilm(id);
+    }
+
     public void setLike(Film film, User user) {
         Set<Long> likes = film.getLikes();
         if (likes == null) {
