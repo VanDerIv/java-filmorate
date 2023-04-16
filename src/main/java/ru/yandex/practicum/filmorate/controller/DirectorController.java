@@ -18,7 +18,7 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 @RequestMapping("/directors")
 public class DirectorController {
 
-    DirectorService directorService;
+    private final DirectorService directorService;
 
     @Autowired
     public DirectorController(DirectorService directorService) {
