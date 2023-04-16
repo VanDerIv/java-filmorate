@@ -10,4 +10,12 @@ insert into GENRES(ID, NAME) values (3, 'Мультфильм');
 insert into GENRES(ID, NAME) values (4, 'Триллер');
 insert into GENRES(ID, NAME) values (5, 'Документальный');
 insert into GENRES(ID, NAME) values (6, 'Боевик');
+
+insert into DICT_EVENT_TYPE(ID, NAME) values (1, 'LIKE');
+insert into DICT_EVENT_TYPE(ID, NAME) values (2, 'REVIEW');
+insert into DICT_EVENT_TYPE(ID, NAME) values (3, 'FRIEND');
+
+insert into DICT_OPERATION(ID, NAME) values (1, 'REMOVE');
+insert into DICT_OPERATION(ID, NAME) values (2, 'ADD');
+insert into DICT_OPERATION(ID, NAME) values (3, 'UPDATE');
 commit;

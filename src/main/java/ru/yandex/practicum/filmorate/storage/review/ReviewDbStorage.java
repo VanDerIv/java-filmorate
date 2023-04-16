@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.sql.*;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserDbStorage userDbStorage;
     private final String sql = "SELECT r.*, NVL(rs.score, 0) score " +
             "FROM reviews r " +
             "LEFT JOIN (SELECT review_id, SUM(score) score " +
@@ -24,8 +26,10 @@ public class ReviewDbStorage implements ReviewStorage {
             "  ON rs.review_id = r.id ";
 
     @Autowired
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userDbStorage = userDbStorage;
+
     }
 
     @Override
@@ -58,6 +62,7 @@ public class ReviewDbStorage implements ReviewStorage {
         Long id = keyHolder.getKey().longValue();
 
         log.info("Ревью успешно добавлено {}", id);
+        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 2);
         return getReview(id);
     }
 
@@ -70,11 +75,13 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getReviewId());
 
         log.info("Ревью успешно изменено {}", review.getReviewId());
+        userDbStorage.createFeedEvent(review.getReviewId(), review.getUserId(),2, 3);
         return getReview(review.getReviewId());
     }
 
     @Override
     public void deleteReview(Long id) {
+        userDbStorage.createFeedEvent(getReview(id).getReviewId(), getReview(id).getUserId(),2, 1);
         jdbcTemplate.update("DELETE FROM reviews WHERE id = ?", id);
         log.info("Ревью успешно удалено {}", id);
     }

@@ -7,12 +7,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,12 +93,20 @@ public class UserDbStorage implements UserStorage {
     public void addUserToFriend(User user, User friend) {
         jdbcTemplate.update("INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)",
                 user.getId(), friend.getId());
+        createFeedEvent(user.getId(), user.getId(), 3, 2);
     }
 
     @Override
     public void removeUserFromFriend(User user, User friend) {
         jdbcTemplate.update("DELETE FROM user_friends WHERE friend_id = ? AND user_id = ?",
                 friend.getId(), user.getId());
+        createFeedEvent(user.getId(), user.getId(), 3, 1);
+    }
+
+    @Override
+    public List<FeedEvent> getUserFeed(Long id) {
+        List<FeedEvent> events = jdbcTemplate.query("SELECT f.event_timestamp, f.user_id, et.name AS event_type_name, o.name AS operation_name, f.id, f.entity_id FROM feed f INNER JOIN dict_operation o ON o.id = f.operation INNER JOIN dict_event_type et ON et.id = f.event_type  WHERE f.user_id = ?", (rs, rowNum) -> makeFeedEvent(rs), id);
+        return events;
     }
 
     private Set<Long> getFriends(Long id) {
@@ -125,5 +132,36 @@ public class UserDbStorage implements UserStorage {
 
         user.setFriends(getFriends(user.getId()));
         return user;
+    }
+
+    private FeedEvent makeFeedEvent(ResultSet rs) throws SQLException {
+        FeedEvent event = FeedEvent.builder()
+                .timestamp(rs.getTimestamp("event_timestamp").toLocalDateTime())
+                .userId(rs.getInt("user_id"))
+                .eventType(rs.getString("event_type_name"))
+                .operation(rs.getString("operation_name"))
+                .eventId(rs.getInt("id"))
+                .entityId(rs.getInt("entity_id"))
+                .build();
+
+        return event;
+    }
+
+    public void createFeedEvent(Long entityId, Long userId, int eventType, int operation) {
+        LocalDateTime today = LocalDateTime.now();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement("INSERT INTO feed(entity_id, user_id, event_type, operation, event_timestamp) " +
+                            "VALUES (?, ?, ?, ?, ?)", new String[]{"id"});
+            ps.setLong(1, entityId);
+            ps.setLong(2, userId);
+            ps.setInt(3, eventType);
+            ps.setInt(4, operation);
+            ps.setTimestamp(5, Timestamp.valueOf(today));
+            return ps;
+        }, keyHolder);
+        Long id = keyHolder.getKey().longValue();
+        log.info("Успешно добавлена новость с id {}", id);
     }
 }

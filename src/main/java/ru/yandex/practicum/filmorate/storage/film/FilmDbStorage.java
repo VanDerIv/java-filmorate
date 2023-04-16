@@ -23,6 +23,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 @Component
 @Primary
@@ -33,14 +34,16 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
     private final DirectorStorage directorStorage;
+    private final UserDbStorage userDbStorage;
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage,
-        GenreDbStorage genreDbStorage, DirectorStorage directorStorage) {
+        GenreDbStorage genreDbStorage, DirectorStorage directorStorage, UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
         this.directorStorage = directorStorage;
+        this.userDbStorage = userDbStorage;
     }
 
     @Override
@@ -120,12 +123,14 @@ public class FilmDbStorage implements FilmStorage {
     public void setLike(Film film, User user) {
         jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
             film.getId(), user.getId());
+        userDbStorage.createFeedEvent(film.getId(), user.getId(),1, 2);
     }
 
     @Override
     public void removeLike(Film film, User user) {
         jdbcTemplate.update("DELETE FROM film_likes WHERE film_id = ? AND user_id = ?",
             film.getId(), user.getId());
+        userDbStorage.createFeedEvent(film.getId(), user.getId(),1, 1);
     }
 
     @Override

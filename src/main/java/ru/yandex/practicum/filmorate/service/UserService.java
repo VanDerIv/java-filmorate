@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.NotFoundException;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -93,5 +94,9 @@ public class UserService {
                 .filter(crossFriends::contains)
                 .map(userStorage::getUser)
                 .collect(Collectors.toSet());
+    }
+
+    public List<FeedEvent> getUserFeed(Long id) {
+        return userStorage.getUserFeed(id);
     }
 }
