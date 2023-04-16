@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -108,6 +109,19 @@ class FilmorateApplicationTests {
 		assertNotNull(likes);
 		assertEquals(1, likes.size());
 		assertEquals(1, likes.stream().findFirst().get());
+
+		User user2 = User.builder().id(2).name("Саша").login("Roma").email("roma@yandex.ru")
+				.birthday(LocalDate.of(2008, 4, 8)).build();
+		userStorage.createUser(user2);
+		filmStorage.setLike(film1, user2);
+		List<Film> filmList = filmStorage.getCommonFilms(user1, user2);
+		assertEquals(1, filmList.size());
+		Assertions.assertThat(filmList.get(0))
+				.isNotNull()
+				.hasFieldOrPropertyWithValue("id", 1L)
+				.hasFieldOrPropertyWithValue("description", "Красивый фильм о любви")
+				.hasFieldOrPropertyWithValue("name", "Титаник");
+		filmStorage.removeLike(film1, user2);
 
 		filmStorage.removeLike(film1, user1);
 		film = filmStorage.getFilm(1L);

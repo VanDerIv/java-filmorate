@@ -145,4 +145,9 @@ public class FilmService {
         }
         return false;
     }
+
+    public List<Film> getCommonFilms(User user, User friend) {
+        return filmStorage.getCommonFilms(user, friend);
+    }
+
 }

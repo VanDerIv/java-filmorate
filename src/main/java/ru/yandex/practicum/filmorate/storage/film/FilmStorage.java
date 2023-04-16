@@ -17,9 +17,11 @@ public interface FilmStorage {
 
     void deleteFilm(Long id);
 
+    List<Film> getAllDirectorsFilms(long id);
+
     void setLike(Film film, User user);
 
     void removeLike(Film film, User user);
 
-    List<Film> getAllDirectorsFilms(long id);
+    List<Film> getCommonFilms(User user, User friend);
 }

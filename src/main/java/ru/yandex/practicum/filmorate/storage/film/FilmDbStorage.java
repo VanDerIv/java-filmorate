@@ -142,6 +142,16 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> getCommonFilms(User user, User friend) {
+        List<Long> filmList = jdbcTemplate.query("SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes group by film_id) p ON u.film_id = p.film_id WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc", (rs, rowNum) -> rs.getLong("film_id"), friend.getId(), user.getId());
+        List<Film> films = new ArrayList<>();
+        for (Long el:filmList) {
+            films.add(getFilm((el)));
+        }
+        return films;
+    }
+
     private void updateGenres(Set<Genre> genres, Long filmId) {
         if (filmId == 0) {
             return;
