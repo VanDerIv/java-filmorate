@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FilmService {
@@ -97,39 +98,31 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        Stream<Film> filmStream = filmStorage.getFilmes().stream();
+        List<Film> filteredFilms;
+
         if (genreId == null && year == null) {
-            return sortFilmsByLikes(filmStorage.getFilmes(), count);
+            filteredFilms = filmStream.collect(Collectors.toList());
 
         } else if (genreId != null && year == null) {
-            List<Film> filteredFilmsByGenre = filmStorage.getFilmes().stream()
-                    .filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
+            filteredFilms = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
                     .collect(Collectors.toList());
-            return sortFilmsByLikes(filteredFilmsByGenre, count);
 
         } else if (genreId == null) {
-            List<Film> filteredFilmsByYear = filmStorage.getFilmes().stream()
-                    .filter(film -> film.getReleaseDate().getYear() == year)
-                    .collect(Collectors.toList());
-            return sortFilmsByLikes(filteredFilmsByYear, count);
+            filteredFilms = filmStream.filter(film -> film.getReleaseDate().getYear() == year).collect(Collectors.toList());
 
         } else {
-            List<Film> filteredFilmsByGenreAndYear = filmStorage.getFilmes().stream()
-                    .filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId)
-                            && film.getReleaseDate().getYear() == year)
-                    .collect(Collectors.toList());
-            return sortFilmsByLikes(filteredFilmsByGenreAndYear, count);
+            filteredFilms = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId)
+                            && film.getReleaseDate().getYear() == year).collect(Collectors.toList());
         }
+        return sortFilmsByLikes(filteredFilms, count);
     }
 
     private List<Film> sortFilmsByLikes(List<Film> films, Integer count) {
         if (count == null) count = DEF_COUNT;
 
         return films.stream()
-                .sorted((film1, film2) -> {
-                    Set<Long> likes1 = film1.getLikes();
-                    Set<Long> likes2 = film2.getLikes();
-                    return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
-                })
+                .sorted(this::compare)
                 .limit(count)
                 .collect(Collectors.toList());
     }
