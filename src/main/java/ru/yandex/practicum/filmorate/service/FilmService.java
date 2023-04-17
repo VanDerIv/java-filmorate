@@ -96,11 +96,40 @@ public class FilmService {
         return films;
     }
 
-    public List<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        if (genreId == null && year == null) {
+            return sortFilmsByLikes(filmStorage.getFilmes(), count);
+
+        } else if (genreId != null && year == null) {
+            List<Film> filteredFilmsByGenre = filmStorage.getFilmes().stream()
+                    .filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
+                    .collect(Collectors.toList());
+            return sortFilmsByLikes(filteredFilmsByGenre, count);
+
+        } else if (genreId == null) {
+            List<Film> filteredFilmsByYear = filmStorage.getFilmes().stream()
+                    .filter(film -> film.getReleaseDate().getYear() == year)
+                    .collect(Collectors.toList());
+            return sortFilmsByLikes(filteredFilmsByYear, count);
+
+        } else {
+            List<Film> filteredFilmsByGenreAndYear = filmStorage.getFilmes().stream()
+                    .filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId)
+                            && film.getReleaseDate().getYear() == year)
+                    .collect(Collectors.toList());
+            return sortFilmsByLikes(filteredFilmsByGenreAndYear, count);
+        }
+    }
+
+    private List<Film> sortFilmsByLikes(List<Film> films, Integer count) {
         if (count == null) count = DEF_COUNT;
 
-        return filmStorage.getFilmes().stream()
-                .sorted(this::compare)
+        return films.stream()
+                .sorted((film1, film2) -> {
+                    Set<Long> likes1 = film1.getLikes();
+                    Set<Long> likes2 = film2.getLikes();
+                    return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
+                })
                 .limit(count)
                 .collect(Collectors.toList());
     }

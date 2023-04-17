@@ -57,8 +57,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count) {
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count,
+                                      @RequestParam(required = false) final Integer genreId,
+                                      @RequestParam(required = false) final Integer year) {
+        return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
     }
 
     @GetMapping("/common")
