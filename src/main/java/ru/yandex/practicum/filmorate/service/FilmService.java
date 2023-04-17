@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FilmService {
@@ -96,11 +97,18 @@ public class FilmService {
         return films;
     }
 
-    public List<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
         if (count == null) count = DEF_COUNT;
+        Stream<Film> filmStream = filmStorage.getFilmes().stream();
+        if (genreId != null) {
+            filmStream = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId));
+        }
 
-        return filmStorage.getFilmes().stream()
-                .sorted(this::compare)
+        if (year != null) {
+            filmStream = filmStream.filter(film -> film.getReleaseDate().getYear() == year);
+        }
+
+        return filmStream.sorted(this::compare)
                 .limit(count)
                 .collect(Collectors.toList());
     }
