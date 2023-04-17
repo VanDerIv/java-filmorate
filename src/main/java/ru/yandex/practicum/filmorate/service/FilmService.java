@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.ValidationException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,12 +24,6 @@ public class FilmService {
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
-    }
-
-    private static int compare(Film film1, Film film2) {
-        Set<Long> likes1 = film1.getLikes();
-        Set<Long> likes2 = film2.getLikes();
-        return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
     }
 
     public List<Film> getFilmes() {
@@ -82,32 +77,73 @@ public class FilmService {
         filmStorage.removeLike(film, user);
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        if (count == null) count = DEF_COUNT;
-
-        return filmStorage.getFilmes().stream()
-            .sorted(FilmService::compare)
-            .limit(count)
-            .collect(Collectors.toList());
-    }
-
     public List<Film> getAllDirectorsFilmsSortedBy(long id, String sortBy) {
         List<Film> films;
 
         if (sortBy.equals("likes")) {
             films = filmStorage.getAllDirectorsFilms(id).stream()
-                .sorted(FilmService::compare)
-                .collect(Collectors.toList());
+                    .sorted(this::compare)
+                    .collect(Collectors.toList());
         } else {
             films = filmStorage.getAllDirectorsFilms(id).stream()
-                .sorted(Comparator.comparing(Film::getReleaseDate))
-                .collect(Collectors.toList());
+                    .sorted(Comparator.comparing(Film::getReleaseDate))
+                    .collect(Collectors.toList());
         }
 
         if (films.isEmpty()) {
             throw new NotFoundException(String.format("Фильмы режисёра %d не найдены", id));
         }
         return films;
+    }
+
+    public List<Film> getPopularFilms(Integer count) {
+        if (count == null) count = DEF_COUNT;
+
+        return filmStorage.getFilmes().stream()
+                .sorted(this::compare)
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return filmStorage.getFilmes().stream()
+                .filter(film -> filmIsMatched(film, by, query))
+                .sorted(this::compare)
+                .collect(Collectors.toList());
+    }
+
+    private int compare(Film film1, Film film2) {
+        Set<Long> likes1 = film1.getLikes();
+        Set<Long> likes2 = film2.getLikes();
+        return -(likes1 == null ? 0 : likes1.size()) - (likes2 == null ? 0 : likes2.size());
+    }
+
+    private boolean filmIsMatched(Film film, String by, String query) {
+        String[] bis = by.split(",");
+        for (String bi: bis) {
+            switch (bi) {
+                case ("director"):
+                    if (film.getDirectors().stream()
+                            .anyMatch(director -> director.getName()
+                                    .toLowerCase()
+                                    .matches(".*" + query.toLowerCase() + ".*"))
+                    ) {
+                        return true;
+                    }
+                    break;
+                case ("title"):
+                    if (film.getName().toLowerCase()
+                            .matches(".*" + query.toLowerCase() + ".*")) {
+                        return true;
+                    }
+                    break;
+            }
+        }
+        return false;
     }
 
     public List<Film> getCommonFilms(User user, User friend) {
