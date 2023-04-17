@@ -98,31 +98,17 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
-        Stream<Film> filmStream = filmStorage.getFilmes().stream();
-        List<Film> filteredFilms;
-
-        if (genreId == null && year == null) {
-            filteredFilms = filmStream.collect(Collectors.toList());
-
-        } else if (genreId != null && year == null) {
-            filteredFilms = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId))
-                    .collect(Collectors.toList());
-
-        } else if (genreId == null) {
-            filteredFilms = filmStream.filter(film -> film.getReleaseDate().getYear() == year).collect(Collectors.toList());
-
-        } else {
-            filteredFilms = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId)
-                            && film.getReleaseDate().getYear() == year).collect(Collectors.toList());
-        }
-        return sortFilmsByLikes(filteredFilms, count);
-    }
-
-    private List<Film> sortFilmsByLikes(List<Film> films, Integer count) {
         if (count == null) count = DEF_COUNT;
+        Stream<Film> filmStream = filmStorage.getFilmes().stream();
+        if (genreId != null) {
+            filmStream = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId));
+        }
 
-        return films.stream()
-                .sorted(this::compare)
+        if (year != null) {
+            filmStream = filmStream.filter(film -> film.getReleaseDate().getYear() == year);
+        }
+
+        return filmStream.sorted(this::compare)
                 .limit(count)
                 .collect(Collectors.toList());
     }
