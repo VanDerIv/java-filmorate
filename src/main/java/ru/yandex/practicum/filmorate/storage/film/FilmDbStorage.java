@@ -49,7 +49,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmes() {
+    public List<Film> getFilms() {
         List<Film> films = jdbcTemplate.query("SELECT * FROM films", (rs, rowNum) -> makeFilm(rs));
         log.info("Возращено фильмов {}", films.size());
         return films;

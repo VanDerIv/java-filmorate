@@ -27,8 +27,8 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public List<Film> getFilmes() {
-        return filmStorage.getFilmes();
+    public List<Film> getFilms() {
+        return filmStorage.getFilms();
     }
 
     public Film createFilm(Film film) {
@@ -99,7 +99,7 @@ public class FilmService {
 
     public List<Film> getPopularFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
         if (count == null) count = DEF_COUNT;
-        Stream<Film> filmStream = filmStorage.getFilmes().stream();
+        Stream<Film> filmStream = filmStorage.getFilms().stream();
         if (genreId != null) {
             filmStream = filmStream.filter(film -> film.getGenres().stream().anyMatch(genre -> genre.getId() == genreId));
         }
@@ -118,7 +118,7 @@ public class FilmService {
             return new ArrayList<>();
         }
 
-        return filmStorage.getFilmes().stream()
+        return filmStorage.getFilms().stream()
                 .filter(film -> filmIsMatched(film, by, query))
                 .sorted(this::compare)
                 .collect(Collectors.toList());
