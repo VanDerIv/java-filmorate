@@ -23,8 +23,8 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilmes() {
-        return filmService.getFilmes();
+    public List<Film> getFilms() {
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
