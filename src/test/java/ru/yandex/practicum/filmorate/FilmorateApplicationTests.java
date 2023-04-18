@@ -74,7 +74,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	public void testFilmStorage() {
-		List<Film> films = filmStorage.getFilmes();
+		List<Film> films = filmStorage.getFilms();
 		assertEquals(0, films.size());
 
 		Film film = filmStorage.getFilm(1L);
@@ -90,7 +90,7 @@ class FilmorateApplicationTests {
 		Film film2 = Film.builder().id(2).name("Гладиатор").description("Много драк и крови")
 				.releaseDate(LocalDate.of(2001, 2, 10)).duration(130).build();
 		filmStorage.createFilm(film2);
-		films = filmStorage.getFilmes();
+		films = filmStorage.getFilms();
 		assertEquals(2, films.size());
 
 		Mpa mpa = Mpa.builder().id(4).name("R").build();
@@ -130,7 +130,7 @@ class FilmorateApplicationTests {
 		assertEquals(0, likes.size());
 
 		filmStorage.deleteFilm(1L);
-		assertEquals(1, filmStorage.getFilmes().size());
+		assertEquals(1, filmStorage.getFilms().size());
 	}
 
 }

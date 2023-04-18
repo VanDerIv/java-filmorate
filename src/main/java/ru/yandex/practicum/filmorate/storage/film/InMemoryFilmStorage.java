@@ -18,7 +18,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmes() {
+    public List<Film> getFilms() {
         log.info("Возращено фильмов " + filmes.size());
         return new ArrayList<>(filmes.values());
     }
