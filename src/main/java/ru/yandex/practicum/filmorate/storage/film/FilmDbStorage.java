@@ -40,7 +40,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage,
-        GenreDbStorage genreDbStorage, DirectorStorage directorStorage, UserDbStorage userDbStorage) {
+        GenreDbStorage genreDbStorage, DirectorStorage directorStorage,
+        UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
@@ -125,14 +126,16 @@ public class FilmDbStorage implements FilmStorage {
     public void setLike(Film film, User user) {
         jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
             film.getId(), user.getId());
-        userDbStorage.createFeedEvent(film.getId(), user.getId(), EventType.LIKE.getEventCode(), Operation.ADD.getOpCode());
+        userDbStorage.createFeedEvent(film.getId(), user.getId(), EventType.LIKE.getEventCode(),
+            Operation.ADD.getOpCode());
     }
 
     @Override
     public void removeLike(Film film, User user) {
         jdbcTemplate.update("DELETE FROM film_likes WHERE film_id = ? AND user_id = ?",
             film.getId(), user.getId());
-        userDbStorage.createFeedEvent(film.getId(), user.getId(),EventType.LIKE.getEventCode(), Operation.REMOVE.getOpCode());
+        userDbStorage.createFeedEvent(film.getId(), user.getId(), EventType.LIKE.getEventCode(),
+            Operation.REMOVE.getOpCode());
     }
 
     @Override
@@ -151,9 +154,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(User user, User friend) {
-        List<Long> filmList = jdbcTemplate.query("SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes group by film_id) p ON u.film_id = p.film_id WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc", (rs, rowNum) -> rs.getLong("film_id"), friend.getId(), user.getId());
+        List<Long> filmList = jdbcTemplate.query(
+            "SELECT u.film_id FROM film_likes u INNER JOIN film_likes f ON u.film_id = f.film_id "
+                + "INNER JOIN (SELECT film_id, count(user_id) cnt_likes FROM film_likes "
+                + "group by film_id) p ON u.film_id = p.film_id "
+                + "WHERE f.user_id = ? AND u.user_id = ? order by p.cnt_likes desc",
+            (rs, rowNum) -> rs.getLong("film_id"), friend.getId(), user.getId());
         List<Film> films = new ArrayList<>();
-        for (Long el:filmList) {
+        for (Long el : filmList) {
             films.add(getFilm((el)));
         }
         return films;
@@ -180,6 +188,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         jdbcTemplate.update("DELETE FROM film_directors WHERE film_id = ?", filmId);
+
         if (directors == null) {
             return;
         }
