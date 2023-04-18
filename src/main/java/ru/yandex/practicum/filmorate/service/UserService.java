@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import javax.validation.ValidationException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,11 +26,8 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        User user = userStorage.getUser(id);
-        if (user == null) {
-            throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
-        }
-        return user;
+        Optional<User> user = userStorage.getUser(id);
+        return user.orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден", id)));
     }
 
     public User createUser(User user) {
@@ -48,7 +46,6 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        getUser(id);
         userStorage.deleteUser(id);
     }
 
@@ -83,7 +80,8 @@ public class UserService {
     public Set<User> getUserFriends(User user) {
         Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
-        return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
+        return user.getFriends().stream().map(userId -> userStorage.getUser(userId).get())
+                .collect(Collectors.toSet());
     }
 
     public Set<User> getUserCommonFriends(User user, User otherUser) {
@@ -92,7 +90,7 @@ public class UserService {
         if (friends == null || crossFriends == null) return new HashSet<>();
         return friends.stream()
                 .filter(crossFriends::contains)
-                .map(userStorage::getUser)
+                .map(userId -> userStorage.getUser(userId).get())
                 .collect(Collectors.toSet());
     }
 

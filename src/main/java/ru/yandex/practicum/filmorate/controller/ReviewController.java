@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reviews")
@@ -51,8 +52,10 @@ public class ReviewController {
     @GetMapping()
     public List<Review> getReviews(@RequestParam(required = false) Long filmId,
                                    @RequestParam(required = false) Integer count) {
-        Film film = filmId == null ? null : filmService.getFilm(filmId);
-        return reviewService.getReviews(film, count);
+        Optional<Film> film = Optional.empty();
+        if (filmId != null) film = Optional.of(filmService.getFilm(filmId));
+        Optional<Integer> cn = Optional.ofNullable(count);
+        return reviewService.getReviews(film, cn);
     }
 
     @PutMapping("/{id}/like/{userId}")

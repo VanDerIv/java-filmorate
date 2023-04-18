@@ -23,13 +23,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         if (!users.containsKey(id)) {
             log.error(String.format("Пользователь с id=%d не найден", id));
-            return null;
+            return Optional.empty();
         }
         log.info(String.format("Пользователь с id=%d успешно возвращен", id));
-        return users.get(id);
+        return Optional.of(users.get(0));
     }
 
     @Override

@@ -10,10 +10,11 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import javax.validation.ValidationException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewService {
-    private final Integer rowCount = 10;
+    private static final Integer ROW_COUNT = 10;
     private final ReviewStorage reviewStorage;
 
     @Autowired
@@ -39,19 +40,16 @@ public class ReviewService {
     }
 
     public Review getReview(Long id) {
-        Review review = reviewStorage.getReview(id);
-        if (review == null) throw new NotFoundException(String.format("Ревью %d не найдено", id));
-        return review;
+        Optional<Review> review = reviewStorage.getReview(id);
+        return review.orElseThrow(() -> new NotFoundException(String.format("Ревью %d не найдено", id)));
     }
 
     public void deleteReview(Long id) {
-        getReview(id);
         reviewStorage.deleteReview(id);
     }
 
-    public List<Review> getReviews(Film film, Integer count) {
-        count = count == null ? rowCount : count;
-        return reviewStorage.getReviews(film, count);
+    public List<Review> getReviews(Optional<Film> film, Optional<Integer> count) {
+        return reviewStorage.getReviews(film, count.orElse(ROW_COUNT));
     }
 
     public void setLike(Review review, User user) {

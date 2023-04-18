@@ -5,10 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -57,16 +55,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Optional<Film> getFilm(Long id) {
         List<Film> films = jdbcTemplate
             .query("SELECT * FROM films WHERE id = ?", (rs, rowNum) -> makeFilm(rs), id);
 
         if (films.isEmpty()) {
             log.error("Фильм с id={} не найден", id);
-            return null;
+            return Optional.empty();
         }
         log.info("Фильм с id={} успешно возвращен", id);
-        return films.get(0);
+        return Optional.of(films.get(0));
     }
 
     @Override
@@ -96,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
         updateDirectors(film.getDirectors(), id);
 
         log.info("Успешно добавлен фильм {}", id);
-        return getFilm(id);
+        return getFilm(id).get();
     }
 
     @Override
@@ -112,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
         updateDirectors(film.getDirectors(), film.getId());
 
         log.info("Успешно изменен фильм {}", film.getId());
-        return getFilm(film.getId());
+        return getFilm(film.getId()).get();
     }
 
     @Override
@@ -162,7 +160,7 @@ public class FilmDbStorage implements FilmStorage {
             (rs, rowNum) -> rs.getLong("film_id"), friend.getId(), user.getId());
         List<Film> films = new ArrayList<>();
         for (Long el : filmList) {
-            films.add(getFilm((el)));
+            films.add(getFilm(el).get());
         }
         return films;
     }

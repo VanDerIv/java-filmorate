@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -77,15 +78,15 @@ class FilmorateApplicationTests {
 		List<Film> films = filmStorage.getFilms();
 		assertEquals(0, films.size());
 
-		Film film = filmStorage.getFilm(1L);
-		assertNull(film);
+		Optional<Film> film = filmStorage.getFilm(1L);
+		assertNull(film.get());
 
 		Film film1 = Film.builder().id(1).name("Титаник").description("Красивый фильм о любви")
 				.releaseDate(LocalDate.of(1997, 11, 1)).duration(194).build();
 		filmStorage.createFilm(film1);
 		film = filmStorage.getFilm(1L);
-		assertNotNull(film);
-		assertThat(film).hasFieldOrPropertyWithValue("id", 1L);
+		assertNotNull(film.get());
+		assertThat(film.get()).hasFieldOrPropertyWithValue("id", 1L);
 
 		Film film2 = Film.builder().id(2).name("Гладиатор").description("Много драк и крови")
 				.releaseDate(LocalDate.of(2001, 2, 10)).duration(130).build();
@@ -97,15 +98,15 @@ class FilmorateApplicationTests {
 		film2.setMpa(mpa);
 		filmStorage.updateFilm(film2);
 		film = filmStorage.getFilm(2L);
-		assertNotNull(film);
-		assertThat(film).hasFieldOrPropertyWithValue("mpa", mpa);
+		assertNotNull(film.get());
+		assertThat(film.get()).hasFieldOrPropertyWithValue("mpa", mpa);
 
 		User user1 = User.builder().id(1).name("Петя").login("Peta").email("peta@yandex.ru")
 				.birthday(LocalDate.of(2003, 2, 1)).build();
 		userStorage.createUser(user1);
 		filmStorage.setLike(film1, user1);
 		film = filmStorage.getFilm(1L);
-		Set<Long> likes = film.getLikes();
+		Set<Long> likes = film.get().getLikes();
 		assertNotNull(likes);
 		assertEquals(1, likes.size());
 		assertEquals(1, likes.stream().findFirst().get());
@@ -125,7 +126,7 @@ class FilmorateApplicationTests {
 
 		filmStorage.removeLike(film1, user1);
 		film = filmStorage.getFilm(1L);
-		likes = film.getLikes();
+		likes = film.get().getLikes();
 		assertNotNull(likes);
 		assertEquals(0, likes.size());
 

@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.enums.Operation;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -36,15 +37,15 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", (rs, rowNum) -> makeUser(rs), id);
 
         if (users.isEmpty()) {
             log.error("Пользователь с id={} не найден", id);
-            return null;
+            return Optional.empty();
         }
         log.info("Пользователь с id={} успешно возвращен", id);
-        return users.get(0);
+        return Optional.of(users.get(0));
     }
 
     @Override
@@ -66,7 +67,7 @@ public class UserDbStorage implements UserStorage {
 
         Long id = keyHolder.getKey().longValue();
         log.info("Успешно добавлен пользователь {}", id);
-        return getUser(id);
+        return getUser(id).get();
     }
 
     @Override
@@ -80,7 +81,7 @@ public class UserDbStorage implements UserStorage {
                 user.getId());
 
         log.info("Успешно изменен пользователь {}", user.getId());
-        return getUser(user.getId());
+        return getUser(user.getId()).get();
     }
 
     @Override

@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -35,15 +36,15 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review getReview(Long id) {
+    public Optional<Review> getReview(Long id) {
         List<Review> reviews = jdbcTemplate.query(sql + "WHERE id = ?", (rs, rowNum) -> makeReviews(rs), id);
 
         if (reviews.isEmpty()) {
             log.error("Ревью с id={} не найдено", id);
-            return null;
+            return Optional.empty();
         }
         log.info("Ревью с id={} успешно возвращено", id);
-        return reviews.get(0);
+        return Optional.of(reviews.get(0));
     }
 
     @Override
@@ -65,7 +66,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
         log.info("Ревью успешно добавлено {}", id);
         userDbStorage.createFeedEvent(id, review.getUserId(), EventType.REVIEW.getEventCode(), Operation.ADD.getOpCode());
-        return getReview(id);
+        return getReview(id).get();
     }
 
     @Override
@@ -78,23 +79,23 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getReviewId());
 
         log.info("Ревью успешно изменено {}", review.getReviewId());
-        return getReview(review.getReviewId());
+        return getReview(review.getReviewId()).get();
     }
 
     @Override
     public void deleteReview(Long id) {
-        userDbStorage.createFeedEvent(getReview(id).getReviewId(), getReview(id).getUserId(), EventType.REVIEW.getEventCode(), Operation.REMOVE.getOpCode());
+        userDbStorage.createFeedEvent(getReview(id).get().getReviewId(), getReview(id).get().getUserId(), EventType.REVIEW.getEventCode(), Operation.REMOVE.getOpCode());
         jdbcTemplate.update("DELETE FROM reviews WHERE id = ?", id);
         log.info("Ревью успешно удалено {}", id);
     }
 
     @Override
-    public List<Review> getReviews(Film film, Integer count) {
+    public List<Review> getReviews(Optional<Film> film, Integer count) {
         List<Review> reviews;
-        if (film == null) {
+        if (film.isEmpty()) {
             reviews = jdbcTemplate.query(sql + "ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), count);
         } else {
-            reviews = jdbcTemplate.query(sql + "WHERE film_id = ? ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), film.getId(), count);
+            reviews = jdbcTemplate.query(sql + "WHERE film_id = ? ORDER BY score DESC LIMIT ?", (rs, rowNum) -> makeReviews(rs), film.get().getId(), count);
         }
         log.info("Возращено ревью {}", reviews.size());
         return reviews;
