@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import java.util.Comparator;
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.NotFoundException;
@@ -9,10 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.ValidationException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,11 +44,8 @@ public class FilmService {
     }
 
     public Film getFilm(Long id) {
-        Film film = filmStorage.getFilm(id);
-        if (film == null) {
-            throw new NotFoundException(String.format("Фильм %d не найден", id));
-        }
-        return film;
+        Optional<Film> film = filmStorage.getFilm(id);
+        return film.orElseThrow(() -> new NotFoundException(String.format("Фильм %d не найден", id)));
     }
 
     public void deleteFilm(Long id) {
@@ -114,10 +108,6 @@ public class FilmService {
     }
 
     public List<Film> searchFilms(String query, String by) {
-        if (query.isEmpty()) {
-            return new ArrayList<>();
-        }
-
         return filmStorage.getFilms().stream()
                 .filter(film -> filmIsMatched(film, by, query))
                 .sorted(this::compare)

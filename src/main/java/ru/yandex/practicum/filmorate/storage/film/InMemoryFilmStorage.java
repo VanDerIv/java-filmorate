@@ -24,13 +24,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Optional<Film> getFilm(Long id) {
         if (!filmes.containsKey(id)) {
             log.warn(String.format("Фильм с id=%d не найден", id));
-            return null;
+            return Optional.empty();
         }
         log.info(String.format("Фильм с id=%d успешно возвращен", id));
-        return filmes.get(id);
+        return Optional.of(filmes.get(id));
     }
 
     @Override
