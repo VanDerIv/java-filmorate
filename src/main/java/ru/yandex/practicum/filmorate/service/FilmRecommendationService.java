@@ -24,7 +24,7 @@ public class FilmRecommendationService {
 
     private Map<Long, Integer> getCloseUsersByLikes(long userId) {
         Map<Long, Integer> closeUsers = new HashMap<>();
-        for (Film film : filmService.getFilmes()) {
+        for (Film film : filmService.getFilms()) {
             if (film.getLikes().contains(userId)) {
                 for (Long closeUserId : film.getLikes()) {
                     if (closeUserId != userId) {
@@ -67,7 +67,7 @@ public class FilmRecommendationService {
 
     private Set<Long> getLikeFilmsByUserId(long userId) {
         Set<Long> likeFilms = new HashSet<>();
-        for (Film film : filmService.getFilmes()) {
+        for (Film film : filmService.getFilms()) {
             for (Long userLikeId : film.getLikes()) {
                 if (userLikeId == userId) {
                     likeFilms.add(film.getId());

@@ -27,7 +27,7 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public List<Film> getFilmes() {
+    public List<Film> getFilms() {
         return filmStorage.getFilmes();
     }
 
