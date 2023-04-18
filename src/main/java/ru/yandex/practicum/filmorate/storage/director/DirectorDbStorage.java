@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +34,16 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Director getDirectorById(long id) {
+    public Optional<Director> getDirectorById(long id) {
         List<Director> directors = jdbcTemplate
             .query("SELECT * FROM directors WHERE id = ?", (rs, rowNum) -> makeDirector(rs), id);
 
         if (directors.isEmpty()) {
             log.error("Режисёр с id={} не найден", id);
-            return null;
+            return Optional.empty();
         }
         log.info("Режисёр с id={} успешно возвращен", id);
-        return directors.get(0);
+        return Optional.of(directors.get(0));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
         Long id = keyHolder.getKey().longValue();
         log.info("Успешно добавлен режисёр {}", id);
-        return getDirectorById(id);
+        return getDirectorById(id).get();
     }
 
     @Override
@@ -67,7 +68,7 @@ public class DirectorDbStorage implements DirectorStorage {
             director.getName(), director.getId());
 
         log.info("Успешно изменен режисёр {}", director.getId());
-        return getDirectorById(director.getId());
+        return getDirectorById(director.getId()).get();
     }
 
     @Override

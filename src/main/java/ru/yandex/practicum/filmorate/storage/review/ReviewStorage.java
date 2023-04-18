@@ -5,9 +5,10 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewStorage {
-    Review getReview(Long id);
+    Optional<Review> getReview(Long id);
 
     Review createReview(Review review);
 
@@ -15,7 +16,7 @@ public interface ReviewStorage {
 
     void deleteReview(Long id);
 
-    List<Review> getReviews(Film film, Integer count);
+    List<Review> getReviews(Optional<Film> film, Integer count);
 
     void setScore(Review review, User user, Integer score);
 
