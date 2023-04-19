@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -23,8 +24,8 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilmes() {
-        return filmService.getFilmes();
+    public List<Film> getFilms() {
+        return filmService.getFilms();
     }
 
     @GetMapping("/{id}")
@@ -57,7 +58,32 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count) {
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularFilms(@RequestParam(required = false) final Integer count,
+                                      @RequestParam(required = false) final Integer genreId,
+                                      @RequestParam(required = false) final Integer year) {
+        return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam("userId") Long uId, @RequestParam("friendId") Long fId) {
+        User friend = userService.getUser(fId);
+        User user = userService.getUser(uId);
+        return filmService.getCommonFilms(user, friend);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getAllDirectorsFilmsSortedBy(@PathVariable final long directorId,
+        @RequestParam(required = false) final String sortBy) {
+        return filmService.getAllDirectorsFilmsSortedBy(directorId, sortBy);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable final Long filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam @NotNull final String query, @RequestParam @NotNull final String by) {
+        return filmService.searchFilms(query, by);
     }
 }

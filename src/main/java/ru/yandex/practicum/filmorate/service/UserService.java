@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.error.NotFoundException;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ValidationException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
 
-    @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
@@ -26,11 +26,8 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        User user = userStorage.getUser(id);
-        if (user == null) {
-            throw new NotFoundException(String.format("Пользователь с id=%d не найден", id));
-        }
-        return user;
+        Optional<User> user = userStorage.getUser(id);
+        return user.orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден", id)));
     }
 
     public User createUser(User user) {
@@ -48,6 +45,10 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
+    public void deleteUser(Long id) {
+        userStorage.deleteUser(id);
+    }
+
     public void addUserToFriend(User user, User friend) {
         if (user.equals(friend)) throw new ValidationException("Пользователь не может быть другом самому себе");
         Set<Long> userFriends = user.getFriends();
@@ -55,7 +56,7 @@ public class UserService {
         if (userFriends == null) {
             userFriends = new HashSet<>();
             user.setFriends(userFriends);
-        } 
+        }
         if (crossFriends == null) {
             crossFriends = new HashSet<>();
             friend.setFriends(crossFriends);
@@ -79,18 +80,22 @@ public class UserService {
     public Set<User> getUserFriends(User user) {
         Set<Long> friends = user.getFriends();
         if (friends == null) return new HashSet<>();
-        
-        return user.getFriends().stream().map(userStorage::getUser).collect(Collectors.toSet());
+        return user.getFriends().stream().map(userId -> userStorage.getUser(userId).get())
+                .collect(Collectors.toSet());
     }
 
     public Set<User> getUserCommonFriends(User user, User otherUser) {
         Set<Long> friends = user.getFriends();
         Set<Long> crossFriends = otherUser.getFriends();
         if (friends == null || crossFriends == null) return new HashSet<>();
-        
         return friends.stream()
                 .filter(crossFriends::contains)
-                .map(userStorage::getUser)
+                .map(userId -> userStorage.getUser(userId).get())
                 .collect(Collectors.toSet());
+    }
+
+    public List<FeedEvent> getUserFeed(Long id) {
+        getUser(id);
+        return userStorage.getUserFeed(id);
     }
 }

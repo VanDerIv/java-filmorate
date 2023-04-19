@@ -7,14 +7,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.Operation;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -24,8 +25,8 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -36,15 +37,15 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", (rs, rowNum) -> makeUser(rs), id);
 
         if (users.isEmpty()) {
             log.error("Пользователь с id={} не найден", id);
-            return null;
+            return Optional.empty();
         }
         log.info("Пользователь с id={} успешно возвращен", id);
-        return users.get(0);
+        return Optional.of(users.get(0));
     }
 
     @Override
@@ -66,7 +67,7 @@ public class UserDbStorage implements UserStorage {
 
         Long id = keyHolder.getKey().longValue();
         log.info("Успешно добавлен пользователь {}", id);
-        return getUser(id);
+        return getUser(id).get();
     }
 
     @Override
@@ -80,19 +81,34 @@ public class UserDbStorage implements UserStorage {
                 user.getId());
 
         log.info("Успешно изменен пользователь {}", user.getId());
-        return getUser(user.getId());
+        return getUser(user.getId()).get();
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        final String query = "DELETE FROM users WHERE id = ?";
+        jdbcTemplate.update(query, id);
+        log.info("Пользователь с id {} успешно удален", id);
     }
 
     @Override
     public void addUserToFriend(User user, User friend) {
         jdbcTemplate.update("INSERT INTO user_friends(user_id, friend_id) VALUES (?, ?)",
                 user.getId(), friend.getId());
+        createFeedEvent(friend.getId(), user.getId(), EventType.FRIEND.getEventCode(), Operation.ADD.getOpCode());
     }
 
     @Override
     public void removeUserFromFriend(User user, User friend) {
+        createFeedEvent(friend.getId(), user.getId(), EventType.FRIEND.getEventCode(), Operation.REMOVE.getOpCode());
         jdbcTemplate.update("DELETE FROM user_friends WHERE friend_id = ? AND user_id = ?",
                 friend.getId(), user.getId());
+    }
+
+    @Override
+    public List<FeedEvent> getUserFeed(Long id) {
+        List<FeedEvent> events = jdbcTemplate.query("SELECT f.event_timestamp, f.user_id, et.name AS event_type_name, o.name AS operation_name, f.id, f.entity_id FROM feed f INNER JOIN dict_operation o ON o.id = f.operation INNER JOIN dict_event_type et ON et.id = f.event_type  WHERE f.user_id = ?", (rs, rowNum) -> makeFeedEvent(rs), id);
+        return events;
     }
 
     private Set<Long> getFriends(Long id) {
@@ -118,5 +134,36 @@ public class UserDbStorage implements UserStorage {
 
         user.setFriends(getFriends(user.getId()));
         return user;
+    }
+
+    private FeedEvent makeFeedEvent(ResultSet rs) throws SQLException {
+        FeedEvent event = FeedEvent.builder()
+                .timestamp(rs.getLong("event_timestamp"))
+                .userId(rs.getInt("user_id"))
+                .eventType(rs.getString("event_type_name"))
+                .operation(rs.getString("operation_name"))
+                .eventId(rs.getInt("id"))
+                .entityId(rs.getInt("entity_id"))
+                .build();
+
+        return event;
+    }
+
+    public void createFeedEvent(Long entityId, Long userId, int eventType, int operation) {
+        Long today = System.currentTimeMillis();
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement("INSERT INTO feed(entity_id, user_id, event_type, operation, event_timestamp) " +
+                            "VALUES (?, ?, ?, ?, ?)", new String[]{"id"});
+            ps.setLong(1, entityId);
+            ps.setLong(2, userId);
+            ps.setInt(3, eventType);
+            ps.setInt(4, operation);
+            ps.setLong(5, today);
+            return ps;
+        }, keyHolder);
+        Long id = keyHolder.getKey().longValue();
+        log.info("Успешно добавлена новость с id {}", id);
     }
 }

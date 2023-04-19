@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -22,13 +23,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         if (!users.containsKey(id)) {
             log.error(String.format("Пользователь с id=%d не найден", id));
-            return null;
+            return Optional.empty();
         }
         log.info(String.format("Пользователь с id=%d успешно возвращен", id));
-        return users.get(id);
+        return Optional.of(users.get(0));
     }
 
     @Override
@@ -46,8 +47,25 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addUserToFriend(User user, User friend) {}
+    public void deleteUser(Long id) {
+        if (!users.containsKey(id)) {
+            log.warn(String.format("Пользователь с id=%d не найден", id));
+            return;
+        }
+        log.info(String.format("Пользователь с id=%d успешно удален", id));
+        users.remove(id);
+    }
 
     @Override
-    public void removeUserFromFriend(User user, User friend) {}
+    public void addUserToFriend(User user, User friend) {
+    }
+
+    @Override
+    public void removeUserFromFriend(User user, User friend) {
+    }
+
+    @Override
+    public List<FeedEvent> getUserFeed(Long id) {
+        return new ArrayList<>();
+    }
 }
