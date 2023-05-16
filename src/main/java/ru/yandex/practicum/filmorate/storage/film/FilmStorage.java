@@ -25,4 +25,8 @@ public interface FilmStorage {
     void removeLike(Film film, User user);
 
     List<Film> getCommonFilms(User user, User friend);
+
+    List<Film> getRecommendationFilms(User user);
+
+    void loadFilmsAndUsers();
 }
