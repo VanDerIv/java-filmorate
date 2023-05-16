@@ -10,6 +10,8 @@ import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+
+import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -165,6 +167,39 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> getRecommendationFilms(User user) {
+        List<Pair<Long, Integer>> sameUsers = jdbcTemplate.query(
+                "SELECT l2.USER_ID, COUNT(*) CN " +
+                        "FROM FILM_LIKES l1 " +
+                        "JOIN FILM_LIKES l2 " +
+                        "  ON l1.FILM_ID = l2.FILM_ID " +
+                        " AND l1.USER_ID = ? " +
+                        " AND l2.USER_ID != ? " +
+                        "GROUP BY l2.USER_ID " +
+                        "ORDER BY CN DESC",
+                (rs, rowNum) -> Pair.of(rs.getLong("USER_ID"), rs.getInt("CN")), user.getId(), user.getId());
+
+        List<Film> recommendationFilms = new ArrayList<>();
+        Integer count = 0;
+        for (Pair<Long, Integer> sameUser : sameUsers) {
+            if (count != 0 && count != sameUser.getSecond()) break;
+            count = sameUser.getSecond();
+
+            List<Film> recomeds = jdbcTemplate.query("SELECT f.* " +
+                    "FROM FILMS f " +
+                    "JOIN FILM_LIKES l1 " +
+                    "  ON f.ID = l1.FILM_ID " +
+                    "LEFT JOIN FILM_LIKES l2 " +
+                    "  ON l1.FILM_ID = l2.FILM_ID " +
+                    " AND l2.USER_ID = ? " +
+                    "WHERE l1.USER_ID = ? " +
+                    "  AND l2.FILM_ID IS NULL", (rs, rowNum) -> makeFilm(rs), user.getId(), sameUser.getFirst());
+            recommendationFilms.addAll(recomeds);
+        }
+        return recommendationFilms;
+    }
+
     private void updateGenres(Set<Genre> genres, Long filmId) {
         if (filmId == 0) {
             return;
@@ -226,5 +261,34 @@ public class FilmDbStorage implements FilmStorage {
         film.setDirectors(directorStorage.getAllFilmsDirectors(rs.getLong("id")));
         return film;
     }
+
+    public void loadFilmsAndUsers() {
+        final Integer FILM_COUNT = 1_000_000;
+        final Integer USER_COUNT = 100_000;
+        final Integer LIKE_COUNT = 500_000;
+        Random random = new Random();
+        for (int i=1; i<=FILM_COUNT; i++) {
+            Integer name = random.nextInt();
+            jdbcTemplate.update("INSERT INTO films(id, name) VALUES (?, ?)",
+                    i, name.toString());
+
+        }
+
+        for (int i=1; i<=USER_COUNT; i++) {
+            Integer name = random.nextInt();
+            jdbcTemplate.update("INSERT INTO users(id, email, login, name) VALUES (?, ?, ?, ?)",
+                    i, "test"+i+"@test.ru", name.toString() + i, name.toString() + i);
+
+        }
+
+        for (int i=1; i<=LIKE_COUNT; i++) {
+            Integer film_id = random.nextInt(FILM_COUNT) + 1;
+            Integer user_id = random.nextInt(USER_COUNT) + 1;
+            jdbcTemplate.update("INSERT INTO film_likes(film_id, user_id) VALUES (?, ?)",
+                    film_id, user_id);
+
+        }
+    }
+
 
 }

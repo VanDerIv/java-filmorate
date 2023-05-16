@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmRecommendationService;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -16,11 +17,13 @@ import java.util.Set;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final FilmService filmService;
     private final FilmRecommendationService filmRecommendationService;
 
     @Autowired
-    public UserController(UserService userService, FilmRecommendationService filmRecommendationService) {
+    public UserController(UserService userService, FilmService filmService, FilmRecommendationService filmRecommendationService) {
         this.userService = userService;
+        this.filmService = filmService;
         this.filmRecommendationService = filmRecommendationService;
     }
 
@@ -74,7 +77,13 @@ public class UserController {
     @GetMapping("/{id}/recommendations")
     public List<Film> getFilmsRecommendationsForUser(@PathVariable final Long id) {
         User user = userService.getUser(id);
-        return filmRecommendationService.getFilmsRecommendationsByUserId(id);
+        //return filmRecommendationService.getFilmsRecommendationsByUserId(user.getId());
+        return filmService.getRecommendationFilms(user);
+    }
+
+    @PostMapping("/generate")
+    public void generateData() {
+        filmService.loadFilmsAndUsers();
     }
 
     @DeleteMapping("/{userId}")

@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,6 +149,14 @@ public class FilmService {
 
     public List<Film> getCommonFilms(User user, User friend) {
         return filmStorage.getCommonFilms(user, friend);
+    }
+
+    public List<Film> getRecommendationFilms(User user) {
+        return filmStorage.getRecommendationFilms(user);
+    }
+
+    public void loadFilmsAndUsers() {
+        filmStorage.loadFilmsAndUsers();
     }
 
 }
