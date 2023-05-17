@@ -13,6 +13,7 @@ pipeline {
         }
         stage('build') {
             steps {
+                sh 'env | sort'
                 sh 'mvn clean install -Dmaven.test.skip'
                 //sh 'mvn spring-boot:run'
             }
@@ -20,6 +21,14 @@ pipeline {
         stage('test') {
             steps {
                 sh 'mvn test'
+            }
+        }
+        stage('only MR') {
+            when {
+                branch 'MR-*'
+            }
+            steps {
+                sh 'env | sort'
             }
         }
     }
